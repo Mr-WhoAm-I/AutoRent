@@ -1,0 +1,176 @@
+﻿<Application x:Class="CarRental.UI.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             StartupUri="Views/LoginWindow.xaml">
+    <Application.Resources>
+        <LinearGradientBrush x:Key="MainBackgroundBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#00F260" Offset="0.0"/>
+            <GradientStop Color="#0575E6" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="BrushIcon" Color="#00C6FF"/>
+        <SolidColorBrush x:Key="BrushPlaceholder" Color="#90A4AE"/>
+        <Color x:Key="VibrantShadowColor">#003366</Color>
+
+        <Style x:Key="WindowControlButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Opacity" Value="0.6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="5">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="1.0"/>
+                                <Setter Property="Background" Value="#20FFFFFF"/>
+                            </Trigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.9" ScaleY="0.9" CenterX="10" CenterY="15"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+        <Style x:Key="PillTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="55"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="55,0,20,0"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="{StaticResource VibrantShadowColor}" Opacity="0.25" BlurRadius="20" ShadowDepth="5" Direction="270"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" CornerRadius="27.5" BorderThickness="0"/>
+                            <Path Data="{TemplateBinding Tag}" Fill="{StaticResource BrushIcon}" Stretch="Uniform" Width="20" Height="20" HorizontalAlignment="Left" Margin="25,0,0,0"/>
+                            <TextBlock Text="{TemplateBinding ToolTip}" Foreground="{StaticResource BrushPlaceholder}" IsHitTestVisible="False" VerticalAlignment="Center" Margin="60,0,0,0">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource TemplatedParent}}" Value="{x:Null}">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsFocused, RelativeSource={RelativeSource TemplatedParent}}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                            <ScrollViewer x:Name="PART_ContentHost" Background="Transparent" Margin="0"/>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PillPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Height" Value="55"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#333"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="55,0,20,0"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect Color="{StaticResource VibrantShadowColor}" Opacity="0.25" BlurRadius="20" ShadowDepth="5" Direction="270"/>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="PasswordBox">
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}" CornerRadius="27.5" BorderThickness="0"/>
+                            <Path Data="{TemplateBinding Tag}" Fill="{StaticResource BrushIcon}" Stretch="Uniform" Width="20" Height="20" HorizontalAlignment="Left" Margin="25,0,0,0"/>
+                            <TextBlock x:Name="PlaceholderText" Text="{TemplateBinding ToolTip}" Foreground="{StaticResource BrushPlaceholder}" IsHitTestVisible="False" VerticalAlignment="Center" Margin="60,0,0,0" Visibility="Visible"/>
+                            <ScrollViewer x:Name="PART_ContentHost" Background="Transparent" Margin="0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="PlaceholderText" Property="Visibility" Value="Collapsed"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TealButton" TargetType="Button">
+            <Setter Property="Height" Value="60"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="border" CornerRadius="30">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                                        <GradientStop Color="#00C6FF" Offset="0"/>
+                                        <GradientStop Color="#0072FF" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Effect>
+                                    <DropShadowEffect ShadowDepth="5" BlurRadius="15" Color="{StaticResource VibrantShadowColor}" Opacity="0.5"/>
+                                </Border.Effect>
+                            </Border>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="RenderTransform">
+                                    <Setter.Value>
+                                        <ScaleTransform ScaleX="0.98" ScaleY="0.98" CenterX="200" CenterY="30"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <StreamGeometry x:Key="UserIconGeom">M899.996,13.388c-488.883,0-886.611,397.732-886.611,886.615c0,297.415,147.216,561.092,372.596,722.011 c14.883,10.622,30.131,20.758,45.673,30.469c101.1,63.151,215.747,106.507,338.525,124.601 c42.384,6.248,85.723,9.529,129.816,9.529c44.084,0,87.423-3.281,129.808-9.529c122.778-18.094,237.434-61.449,338.525-124.592 c15.542-9.711,30.799-19.855,45.682-30.478c225.389-160.919,372.604-424.596,372.604-722.011 C1786.615,411.12,1388.879,13.388,899.996,13.388z M899.996,1724.407c-163.127,0-315.337-47.626-443.461-129.704 c58.621-107.8,176.409-191.24,323.694-221.345v22.277l119.594,66.448l119.932-66.431v-22.295 c147.285,30.104,265.074,113.545,323.694,221.345C1215.324,1676.781,1063.118,1724.407,899.996,1724.407z M554.979,912.854 c-15.75-5.685-27.058-20.743-27.058-38.429c0-17.69,11.308-32.751,27.058-38.44v9.194V912.854z M1238.035,845.179v-8.769 c15.144,6.001,25.896,20.758,25.896,38.001c0,17.261-10.752,32.021-25.896,38.017V845.179z M1212.461,711.77 c-2.014,9.963-4.564,19.813-7.654,29.489c-61.936-32.053-146.322-67.303-235.16-79.466 c-155.131-21.218-168.833-29.74-183.829-73.174l-12.957-37.516l-29.723,26.291c-0.894,0.789-80.681,71.251-161.344,136.272 c-11.984-42.575-13.798-86.934-5.103-130.046c27.397-135.974,156.441-234.666,306.824-234.666c23.249,0,46.749,2.365,69.859,7.017 c85.297,17.195,159.218,63.936,208.153,131.617C1210.005,554.617,1228.081,634.235,1212.461,711.77z M608.063,845.179V817.6 v-56.933c55.635-44.597,111.831-92.696,143.719-120.336c30.452,47.001,85.592,56.964,210.67,74.073 c86.504,11.833,170.369,49.166,222.49,76.398V817.6v27.579v94.646c0,159.053-129.399,288.436-288.436,288.436 c-159.044,0-288.444-129.383-288.444-288.436V845.179z M833.33,1310.867V1275.4c20.489,3.853,41.586,5.962,63.177,5.962 c24.048,0,47.505-2.534,70.154-7.281v36.786v30.843v22.649l-66.796,36.995l-66.535-36.969v-22.676V1310.867z M1387.403,1564.451 c-68.34-121.537-201.975-214.22-367.649-245.175v-61.016c119.42-46.385,206.444-158.038,217.075-290.979 c45.291-6.708,80.194-45.742,80.194-92.871c0-43.972-30.399-80.88-71.265-91.081c8.175-19.678,14.536-40.158,18.745-61.06 c18.588-92.227-2.699-186.615-59.94-265.794c-56.781-78.533-142.27-132.711-240.705-152.558 c-26.547-5.354-53.57-8.062-80.343-8.062c-84.273,0-166.412,27.106-231.29,76.333c-66.301,50.303-111.619,121.676-127.595,200.942 c-13.13,65.121-6.196,132.494,20.021,194.854l5.997,14.245c-43.156,8.487-75.838,46.576-75.838,92.192 c0,47.533,35.52,86.844,81.383,93.041c10.909,135.439,101.083,248.828,224.035,293.486v58.325 c-165.679,30.955-299.3,123.638-367.641,245.175C208.383,1414.259,75.59,1172.364,75.59,900.003 c0-454.583,369.827-824.41,824.406-824.41s824.415,369.828,824.415,824.41C1724.41,1172.364,1591.608,1414.259,1387.403,1564.451z</StreamGeometry>
+        <GeometryGroup x:Key="LockIconGeom">
+            <StreamGeometry>M900,868.536c-113.664,0-206.139,92.473-206.139,206.145c0,72.752,38.923,140.217,100.683,177.107v167.979 h210.914v-167.979c61.764-36.891,100.689-104.355,100.689-177.107C1106.146,961.009,1013.669,868.536,900,868.536z M960.627,1204.401l-18.129,8.493v143.914h-84.996v-143.914l-18.129-8.493c-50.148-23.487-82.554-74.403-82.554-129.721 c0-78.952,64.232-143.185,143.181-143.185c78.952,0,143.189,64.232,143.189,143.185 C1043.189,1129.998,1010.782,1180.914,960.627,1204.401z</StreamGeometry>
+            <StreamGeometry>M1306.793,621.365V406.939c-1.094-107.793-43.891-208.955-120.511-284.855 C1109.604,46.13,1007.934,4.301,899.996,4.301c-107.933,0-209.604,41.83-286.273,117.788 c-76.617,75.896-119.413,177.057-120.507,285.166v112.333h62.958V407.571c1.898-187.646,156.137-340.313,343.822-340.313 c187.696,0,341.942,152.667,343.839,339.996v214.11H888.52H192.564v474.124c1.906,187.453,76.336,363.382,209.578,495.369 C535.485,1722.948,712.296,1795.7,900.004,1795.7c187.708,0,364.519-72.752,497.863-204.843 c133.242-131.987,207.668-307.916,209.568-495.693V621.365H1306.793z M1544.477,1094.848 c-3.561,351.735-292.671,637.894-644.472,637.894c-351.796,0-640.912-286.158-644.482-637.577v-410.84h237.693h813.578h237.684 V1094.848z</StreamGeometry>
+        </GeometryGroup>
+        <StreamGeometry x:Key="CheckIconGeom">
+            M7 12L11.9497 16.9497L22.5572 6.34326M2.0498 12.0503L6.99955 17M17.606 6.39355L12.3027 11.6969
+        </StreamGeometry>
+        <StreamGeometry x:Key="CrossIconGeom">
+            M392.664,255.999L502.97,145.692c5.819-5.818,9.023-13.554,9.023-21.781c0-8.228-3.204-15.964-9.022-21.781L409.863,9.022 C404.046,3.204,396.31,0,388.082,0s-15.964,3.204-21.781,9.023L255.994,119.33l-59.544-59.545c-3.309-3.309-8.674-3.31-11.984,0 c-3.309,3.308-3.309,8.674,0,11.983l65.536,65.537c1.591,1.59,3.744,2.482,5.993,2.482s4.403-0.893,5.993-2.482L378.285,21.006 c2.617-2.618,6.097-4.058,9.797-4.058c3.703,0,7.181,1.441,9.799,4.058l93.108,93.108c2.618,2.618,4.058,6.097,4.058,9.798 s-1.442,7.181-4.06,9.798L374.689,250.009c-3.309,3.308-3.309,8.674,0,11.983l116.299,116.3c2.618,2.618,4.058,6.097,4.058,9.798 c0,3.701-1.442,7.181-4.06,9.798l-93.105,93.107c-5.404,5.404-14.195,5.402-19.597,0l-43.846-43.846 c-3.31-3.31-8.675-3.308-11.984,0c-3.309,3.308-3.309,8.674,0,11.983l43.847,43.846c6.004,6.005,13.894,9.008,21.781,9.008 c7.889,0,15.777-3.003,21.782-9.009l93.105-93.107c5.819-5.819,9.023-13.555,9.023-21.782c0-8.228-3.204-15.964-9.022-21.781 L392.664,255.999z
+        </StreamGeometry>
+    </Application.Resources>
+</Application>

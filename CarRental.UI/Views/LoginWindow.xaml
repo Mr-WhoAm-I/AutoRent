@@ -1,0 +1,111 @@
+﻿<Window x:Class="CarRental.UI.Views.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Авторизация" Height="780" Width="460"
+        WindowStartupLocation="CenterScreen"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        MouseDown="Window_MouseDown" FontFamily="Segoe UI">
+
+    <Border CornerRadius="20" ClipToBounds="True" Background="{StaticResource MainBackgroundBrush}">
+        <Grid>
+            <Path Data="M0.5 23.04V1.54C0.5 -0.46 168.5 1.04 168.5 1.04C176.509 2.70338 183.575 8.52245 185 17.04L184.5 363.04C145.5 345.04 134.5 307.04 134.5 307.04C134.5 307.04 126.5 281.04 132 259.04C138.555 232.818 161 213.54 166.5 199.04C166.5 199.04 179.462 159.764 168.5 139.04C156.405 116.173 127.667 108.54 108.5 106.04C94.5 104.373 5 100.54 0.5 23.04Z"
+                  Stretch="Fill"
+                  VerticalAlignment="Top" HorizontalAlignment="Right"
+                  Width="185" Height="363">
+                <Path.Fill>
+                    <LinearGradientBrush StartPoint="0.8,0" EndPoint="0.2,1">
+                        <GradientStop Color="#60FFFFFF" Offset="0"/>
+                        <GradientStop Color="#00FFFFFF" Offset="0.9"/>
+                    </LinearGradientBrush>
+                </Path.Fill>
+                <Path.Effect>
+                    <DropShadowEffect Color="#003366" Direction="220" ShadowDepth="10" BlurRadius="25" Opacity="0.6"/>
+                </Path.Effect>
+            </Path>
+
+            <Path Data="M8.62463 223.129C0.263857 234.898 0.232518 233.529 0.62463 233.629H262.125C282.366 230.461 280.625 216.629 280.625 196.129L280.625 0.62854C280.625 0.62854 267.625 3.62854 255.125 17.6285C242.625 31.6285 232.125 55.6285 232.125 62.6285C232.125 90.6285 235.765 108.003 229.125 136.129C220.625 172.129 206.773 180.255 179.625 193.629C146.344 210.023 93.6245 181.129 61.6245 192.129C29.6245 203.129 16.9854 211.359 8.62463 223.129Z"
+                  Stretch="Fill"
+                  VerticalAlignment="Bottom" HorizontalAlignment="Right"
+                  Width="284" Height="236" Margin="0,0,-2,-1">
+                <Path.Fill>
+                    <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                        <GradientStop Color="#005BEA" Offset="0"/>
+                        <GradientStop Color="#002E7A" Offset="1"/>
+                    </LinearGradientBrush>
+                </Path.Fill>
+                <Path.Effect>
+                    <DropShadowEffect Color="#001A4D" Direction="135" ShadowDepth="10" BlurRadius="25" Opacity="0.5"/>
+                </Path.Effect>
+            </Path>
+
+            <Path Data="M44 139.004C18.5 169.004 19 194.504 0.5 222.004V0.504393C10.5 0.00439271 55.6154 42.0044 57.5 70.5044C58.9969 93.1407 57.5 123.122 44 139.004Z"
+                  Stretch="Fill" HorizontalAlignment="Left"
+                  Width="59" Height="220" Margin="-14,461,0,99">
+                <Path.Fill>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                        <GradientStop Color="#FF0494C3" Offset="1"/>
+                        <GradientStop Color="#FF03ADAA" Offset="0.041"/>
+                    </LinearGradientBrush>
+                </Path.Fill>
+                <Path.Effect>
+                    <DropShadowEffect Color="#003366" Direction="0" ShadowDepth="5" BlurRadius="15" Opacity="0.7"/>
+                </Path.Effect>
+            </Path>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="20" Panel.ZIndex="100">
+
+                <Button Content="—" 
+                        Style="{StaticResource WindowControlButtonStyle}"
+                        Margin="0,0,5,0" 
+                        Click="Minimize_Click"/>
+
+                <Button Content="✕" 
+                        Style="{StaticResource WindowControlButtonStyle}"
+                        Click="Close_Click"/>
+
+            </StackPanel>
+
+            <StackPanel VerticalAlignment="Center" Margin="45,0">
+
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,30">
+                    <Image Source="pack://application:,,,/CarRental.UI;component/Resources/Images/CarRental_Logo.png" 
+                           Width="350" Margin="0,0,0,-60" 
+                           RenderOptions.BitmapScalingMode="HighQuality">
+                        <Image.Effect>
+                            <DropShadowEffect ShadowDepth="4" BlurRadius="5" Color="#003366" Opacity="0.5"/>
+                        </Image.Effect>
+                    </Image>
+
+                    <TextBlock Text="АрендаАвто" 
+                               Foreground="White" 
+                               FontSize="40" 
+                               FontWeight="Bold" 
+                               HorizontalAlignment="Center"
+                               FontFamily="Segoe UI Semibold"
+                               Margin="0,-20,0,0">
+                        <TextBlock.Effect>
+                            <DropShadowEffect ShadowDepth="2" BlurRadius="2" Color="#003366" Opacity="0.4"/>
+                        </TextBlock.Effect>
+                    </TextBlock>
+                </StackPanel>
+
+                <TextBlock Text="С возвращением!" Foreground="White" FontSize="28" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,8">
+                    <TextBlock.Effect>
+                        <DropShadowEffect ShadowDepth="1" BlurRadius="2" Color="#003366" Opacity="0.3"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+                <TextBlock Text="Войдите в свой аккаунт" Foreground="White" FontSize="16" Opacity="0.9" HorizontalAlignment="Center" Margin="0,0,0,45"/>
+
+                <TextBox x:Name="LoginBox" Style="{StaticResource PillTextBox}" Tag="{StaticResource UserIconGeom}" ToolTip="Адрес электронной почты" Margin="0,0,0,25"/>
+
+                <PasswordBox x:Name="PasswordBox" Style="{StaticResource PillPasswordBox}" Tag="{StaticResource LockIconGeom}" ToolTip="Пароль" PasswordChanged="PasswordBox_PasswordChanged" Margin="0,0,0,15"/>
+
+                <TextBlock Text="Забыли пароль?" Foreground="White" FontSize="14" HorizontalAlignment="Right" Cursor="Hand" TextDecorations="Underline" Opacity="0.9" Margin="0,0,10,45"/>
+
+                <Button Content="Войти" Style="{StaticResource TealButton}" Click="LoginButton_Click" Margin="0,0,0,60"/>
+
+                <TextBlock Text="Регистрация" Foreground="White" FontSize="16" HorizontalAlignment="Center" Cursor="Hand" Opacity="0.9"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

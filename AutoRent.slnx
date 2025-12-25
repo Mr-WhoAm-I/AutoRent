@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CarRental.BLL/CarRental.BLL.csproj" Id="77bdeddd-a238-4d56-bc5f-ee8a489fca19" />
+  <Project Path="CarRental.DAL/CarRental.DAL.csproj" Id="26c11aac-f5de-473f-8101-00a02bdfefec" />
+  <Project Path="CarRental.Domain/CarRental.Domain.csproj" />
+  <Project Path="CarRental.UI/CarRental.UI.csproj" Id="cacd4d90-be74-4207-80ec-38b953475cab" />
+</Solution>

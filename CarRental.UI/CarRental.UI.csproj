@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Images\CarRental_Logo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CarRental.BLL\CarRental.BLL.csproj" />
+    <ProjectReference Include="..\CarRental.Domain\CarRental.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\CarRental_Logo.png">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+</Project>
