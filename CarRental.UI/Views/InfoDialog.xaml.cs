@@ -16,16 +16,26 @@ namespace CarRental.UI.Views
 
             if (isError)
             {
-                // Настройки для Ошибки
                 IconPath.Data = (Geometry)Application.Current.Resources["CrossIconGeom"];
-                // Можно добавить красный оттенок, если захочешь, но пока оставляем белый на Teal фоне
+
+                IconPath.Fill = Brushes.White;
+                IconPath.Stroke = null;
+                IconPath.StrokeThickness = 0;
+
                 TitleText.Text = string.IsNullOrEmpty(title) ? "Ошибка!" : title;
                 ActionButton.Content = "Закрыть";
             }
             else
             {
-                // Настройки для Успеха
                 IconPath.Data = (Geometry)Application.Current.Resources["CheckIconGeom"];
+
+                IconPath.Fill = null;
+                IconPath.Stroke = Brushes.White;
+                IconPath.StrokeThickness = 2.5;
+                IconPath.StrokeStartLineCap = PenLineCap.Round;
+                IconPath.StrokeEndLineCap = PenLineCap.Round;
+                IconPath.StrokeLineJoin = PenLineJoin.Round;
+
                 TitleText.Text = string.IsNullOrEmpty(title) ? "Успех!" : title;
                 ActionButton.Content = "ОК";
             }

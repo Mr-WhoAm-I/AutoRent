@@ -73,7 +73,7 @@
                       StrokeStartLineCap="Round"
                       StrokeEndLineCap="Round"
                       Stretch="Uniform" 
-                      Width="50" Height="50" 
+                      Width="64" Height="64" 
                       Margin="0,0,0,15">
                     <Path.Effect>
                         <DropShadowEffect Color="Black" Opacity="0.2" BlurRadius="10" ShadowDepth="2"/>
