@@ -12,6 +12,12 @@ namespace CarRental.UI.Views
         {
             InitializeComponent();
             _authService = new AuthService();
+            this.Loaded += Window_Loaded;
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoginBox.Focus();
         }
 
         private void Window_MouseDown(object sender, MouseButtonEventArgs e)

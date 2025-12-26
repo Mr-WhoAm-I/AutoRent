@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Авторизация" Height="780" Width="460"
         WindowStartupLocation="CenterScreen"
+        Loaded="Window_Loaded"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
         MouseDown="Window_MouseDown" FontFamily="Segoe UI">
 
@@ -102,9 +103,7 @@
 
                 <TextBlock Text="Забыли пароль?" Foreground="White" FontSize="14" HorizontalAlignment="Right" Cursor="Hand" TextDecorations="Underline" Opacity="0.9" Margin="0,0,10,45"/>
 
-                <Button Content="Войти" Style="{StaticResource TealButton}" Click="LoginButton_Click" Margin="0,0,0,60"/>
-
-                <TextBlock Text="Регистрация" Foreground="White" FontSize="16" HorizontalAlignment="Center" Cursor="Hand" Opacity="0.9"/>
+                <Button Content="Войти" Style="{StaticResource TealButton}" Click="LoginButton_Click" IsDefault="True" Margin="0,0,0,60"/>
             </StackPanel>
         </Grid>
     </Border>
