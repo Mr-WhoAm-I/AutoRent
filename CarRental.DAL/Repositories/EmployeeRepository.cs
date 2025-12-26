@@ -8,7 +8,6 @@ namespace CarRental.DAL.Repositories
         // Поиск сотрудника по Логину
         public Employee? GetByLogin(string login)
         {
-            // Используем JOIN, чтобы сразу получить название роли (Администратор/Менеджер)
             string sql = @"
                 SELECT s.ID, Фамилия, Имя, Логин, Пароль, 
                        IDРоли, Название AS НазваниеРоли

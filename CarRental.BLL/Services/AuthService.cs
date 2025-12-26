@@ -43,12 +43,11 @@ namespace CarRental.BLL.Services
         // Вспомогательный метод хеширования
         private static string ComputeSha256Hash(string rawData)
         {
-            using SHA256 sha256Hash = SHA256.Create();
             // Преобразуем строку в байты
-            byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+            byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawData));
 
             // Преобразуем байты в строку (hex)
-            StringBuilder builder = new StringBuilder();
+            StringBuilder builder = new();
             for (int i = 0; i < bytes.Length; i++)
             {
                 builder.Append(bytes[i].ToString("x2"));

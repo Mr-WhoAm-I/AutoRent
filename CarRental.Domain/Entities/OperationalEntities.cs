@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace CarRental.Domain.Entities
+﻿namespace CarRental.Domain.Entities
 {
     public class Booking
     {
