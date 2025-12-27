@@ -12,7 +12,7 @@ namespace CarRental.UI.Views
         {
             InitializeComponent();
             _authService = new AuthService();
-            this.Loaded += Window_Loaded;
+            Loaded += Window_Loaded;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)

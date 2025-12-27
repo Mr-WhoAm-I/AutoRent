@@ -28,5 +28,50 @@
         public string BodyTypeName { get; set; } = string.Empty;
 
         public string DisplayName => $"{BrandName} {Model} ({Year})";
+        public DateTime? InsuranceExpiryDate { get; set; }
+        public DateTime? NextMaintenanceDate { get; set; }
+        public string BrandAndModel => $"{BrandName} {Model}";
+        public string StatusColorHex
+        {
+            get
+            {
+                if (StatusName == "Свободен") return "#00C853"; // Зеленый
+                if (StatusName.Contains("ремонт") || StatusName.Contains("обслуживание")) return "#FF9800"; // Оранжевый
+                return "#6366F1"; // Синий (Аренда, Бронь)
+            }
+        }
+        public string StatusBgHex
+        {
+            get
+            {
+                if (StatusName == "Свободен") return "#E8F5E9"; // Светло-зеленый
+                if (StatusName.Contains("ремонт") || StatusName.Contains("обслуживание")) return "#FFF3E0"; // Светло-оранжевый
+                return "#EEF2FF"; // Светло-синий
+            }
+        }
+        // Логика цвета ИНДИКАТОРА СТРАХОВКИ
+        public string InsuranceIndicatorColor
+        {
+            get
+            {
+                if (InsuranceExpiryDate == null) return "#CCC"; // Нет страховки
+                var days = (InsuranceExpiryDate.Value - DateTime.Now).TotalDays;
+                if (days < 7) return "#F44336"; // Красный (< недели)
+                if (days < 30) return "#FF9800"; // Оранжевый (< месяца)
+                return "#CCC"; // Серый (все ок)
+            }
+        }
+
+        // Логика цвета ИНДИКАТОРА ОБСЛУЖИВАНИЯ
+        public string MaintenanceIndicatorColor
+        {
+            get
+            {
+                if (NextMaintenanceDate == null) return "#CCC";
+                var days = (NextMaintenanceDate.Value - DateTime.Now).TotalDays;
+                if (days <= 7 && days >= 0) return "#FF9800"; // Скоро (< недели)
+                return "#CCC";
+            }
+        }
     }
 }

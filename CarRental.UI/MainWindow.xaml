@@ -151,13 +151,13 @@
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0" Background="Transparent" MouseDown="Window_MouseDown">
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
-                        <Button Content="—" Style="{StaticResource WindowControlButtonStyle}" Foreground="#333" Click="Minimize_Click"/>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,20,0">
+                        <Button Content="—" Style="{StaticResource WindowControlButtonStyle}" Foreground="#333" Click="Minimize_Click" Margin="0,0,10,0"/>
                         <Button Content="✕" Style="{StaticResource WindowControlButtonStyle}" Foreground="#333" Click="Close_Click"/>
                     </StackPanel>
                 </Border>
 
-                <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Margin="20"/>
+                <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Margin="10"/>
             </Grid>
         </Grid>
     </Border>
