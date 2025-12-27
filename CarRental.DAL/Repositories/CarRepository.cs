@@ -12,7 +12,7 @@ namespace CarRental.DAL.Repositories
 
             string sql = @"
                 SELECT 
-                    a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.ФотоПуть,
+                    a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.Фото,
                     a.IDМарки, m.Название AS МаркаНазвание,
                     a.IDКласса, c.Название AS КлассНазвание,
                     a.IDСтатуса, s.Название AS СтатусНазвание,
@@ -42,7 +42,7 @@ namespace CarRental.DAL.Repositories
                         Year = (int)reader["ГодВыпуска"],
                         Mileage = (int)reader["Пробег"],
                         PricePerDay = (decimal)reader["СтоимостьВСутки"],
-                        ImagePath = reader["ФотоПуть"] as string, // Может быть null
+                        ImagePath = reader["Фото"] as string, // Может быть null
 
                         // Внешние ключи
                         BrandId = (int)reader["IDМарки"],

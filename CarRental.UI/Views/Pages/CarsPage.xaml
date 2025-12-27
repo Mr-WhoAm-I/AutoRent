@@ -1,11 +1,401 @@
 ﻿<Page x:Class="CarRental.UI.Views.Pages.CarsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Автомобили" FontFamily="Segoe UI">
+      Title="Автопарк" FontFamily="Segoe UI" Loaded="Page_Loaded">
 
-    <Grid>
-        <TextBlock Text="Список автомобилей" 
-                   FontSize="32" FontWeight="SemiBold" Foreground="#333"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+    <Page.Resources>
+        <Style x:Key="FilterCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="#555"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Margin" Value="0,6"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Orientation="Horizontal" Background="Transparent">
+                            <Border x:Name="border" Width="20" Height="20" CornerRadius="6" 
+                                    BorderBrush="#E0E0E0" BorderThickness="1.5" Background="White">
+                                <Path x:Name="check" Data="M4 10L8 14L16 6" Stroke="White" StrokeThickness="2.5" 
+                                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round"
+                                      Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource GreenAccentBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource GreenAccentBrush}"/>
+                                <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="#333"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource GreenAccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="FilterExpanderStyle" TargetType="Expander">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="IsExpanded" Value="True"/>
+            <Setter Property="Margin" Value="0,0,0,15"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Expander">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <ToggleButton x:Name="HeaderSite" IsChecked="{Binding IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Background="Transparent" BorderThickness="0" Cursor="Hand"
+                                          HorizontalContentAlignment="Stretch">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border Background="Transparent" Padding="0,5">
+                                            <Grid>
+                                                <ContentPresenter Content="{TemplateBinding Content}" 
+                                                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                                  HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                                  TextBlock.FontWeight="Bold" TextBlock.Foreground="#333" TextBlock.FontSize="14"/>
+                                                <Path x:Name="arrow" Data="M0 0L5 5L10 0" Stroke="#999" StrokeThickness="2" 
+                                                      HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,5,0"
+                                                      RenderTransformOrigin="0.5,0.5">
+                                                    <Path.RenderTransform>
+                                                        <RotateTransform Angle="0"/>
+                                                    </Path.RenderTransform>
+                                                </Path>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="arrow" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="180"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <ContentPresenter x:Name="ExpandSite" Grid.Row="1" Visibility="Collapsed" Margin="0,10,0,0"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ExpandSite" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PriceBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="35"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="0" Background="Transparent"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource GreenAccentBrush}"/>
+                                <Setter TargetName="border" Property="BorderThickness" Value="1.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GreenSliderStyle" TargetType="Slider">
+            <Setter Property="IsSelectionRangeEnabled" Value="True"/>
+            <Setter Property="SelectionStart" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource GreenAccentBrush}"/>
+        </Style>
+
+        <Style x:Key="ViewToggleButtonStyle" TargetType="RadioButton">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Foreground" Value="#90A4AE"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="0,0,5,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="8" BorderBrush="#EEEEEE" BorderThickness="1">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource GreenAccentBrush}"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource GreenAccentBrush}"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="border" Property="Background" Value="{StaticResource GreenHoverBrush}"/>
+                                <Setter Property="Foreground" Value="{StaticResource GreenAccentBrush}"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
+    <Grid Background="#F5F7FA" Margin="0,0,10,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Автопарк" FontSize="26" FontWeight="Bold" Foreground="#333" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox x:Name="SearchBox" Grid.Column="0" 
+                     Style="{StaticResource PillTextBox}" 
+                     Tag="{StaticResource SearchIconGeom}" 
+                     ToolTip="Поиск по модели..." Height="45"/>
+
+            <Border Grid.Column="2" Background="White" CornerRadius="10" BorderThickness="0" Height="45" Padding="15,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="{StaticResource VibrantShadowColor}" Opacity="0.05" BlurRadius="10" ShadowDepth="2"/>
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <Path Data="{StaticResource CalendarIconGeom}" 
+                          Fill="{StaticResource GreenAccentBrush}" Width="16" Height="16" Stretch="Uniform" Margin="0,0,8,0"/>
+                    <TextBlock Text="доступность:" Foreground="{StaticResource GreenAccentBrush}" VerticalAlignment="Center" Margin="0,0,15,0" FontWeight="SemiBold" FontSize="13"/>
+                    <DatePicker Width="100" Style="{StaticResource ModernDatePickerStyle}"/>
+                    <TextBlock Text="→" Margin="10,0" VerticalAlignment="Center" Foreground="#CCC"/>
+                    <DatePicker Width="100" Style="{StaticResource ModernDatePickerStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                <RadioButton x:Name="ViewGridBtn" GroupName="ViewType" IsChecked="True" Checked="ViewType_Changed"
+                             Style="{StaticResource ViewToggleButtonStyle}" ToolTip="Плитка">
+                    <Path Data="{StaticResource GridIconGeom}" Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}" 
+                          Width="16" Height="16" Stretch="Uniform"/>
+                </RadioButton>
+                <RadioButton x:Name="ViewListBtn" GroupName="ViewType" Checked="ViewType_Changed"
+                             Style="{StaticResource ViewToggleButtonStyle}" ToolTip="Список">
+                    <TextBlock Text="☰" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </RadioButton>
+            </StackPanel>
+
+            <Button Grid.Column="6" Content="+ Добавить" 
+                    Style="{StaticResource RoundedButtonStyle}" 
+                    Width="140" FontSize="14"/>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="280"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Background="White" CornerRadius="12" Padding="20" VerticalAlignment="Top" Margin="0,0,25,0">
+                <Border.Effect>
+                    <DropShadowEffect Color="#E5E9F2" BlurRadius="10" ShadowDepth="2" Opacity="0.5"/>
+                </Border.Effect>
+
+                <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+                            <TextBlock Text="⚲" Foreground="{StaticResource GreenAccentBrush}" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                            <TextBlock Text="Фильтры" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
+                        </StackPanel>
+
+                        <Expander Header="ЦЕНА ЗА СУТКИ (₽)" Style="{StaticResource FilterExpanderStyle}">
+                            <StackPanel Margin="0,5,0,0">
+                                <Slider Style="{StaticResource GreenSliderStyle}" 
+                                        Minimum="0" Maximum="20000" Value="12000" 
+                                        IsSelectionRangeEnabled="True" SelectionEnd="12000"
+                                        Margin="0,0,0,15"/>
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="15"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Text="0" Style="{StaticResource PriceBoxStyle}"/>
+                                    <TextBlock Text="—" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+                                    <TextBox Text="20000" Grid.Column="2" Style="{StaticResource PriceBoxStyle}"/>
+                                </Grid>
+                            </StackPanel>
+                        </Expander>
+
+                        <Separator Background="#EEE" Margin="0,0,0,15"/>
+
+                        <Expander Header="КЛАСС АВТО" Style="{StaticResource FilterExpanderStyle}">
+                            <StackPanel>
+                                <CheckBox Content="Эконом" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Комфорт" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Бизнес" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Премиум" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Внедорожник" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Минивэн" Style="{StaticResource FilterCheckBoxStyle}"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <Separator Background="#EEE" Margin="0,0,0,15"/>
+
+                        <Expander Header="МАРКА" Style="{StaticResource FilterExpanderStyle}" IsExpanded="False">
+                            <StackPanel>
+                                <CheckBox Content="BMW" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Mercedes" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Audi" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Toyota" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Kia" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Hyundai" Style="{StaticResource FilterCheckBoxStyle}"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <Separator Background="#EEE" Margin="0,0,0,15"/>
+
+                        <Expander Header="КОРОБКА" Style="{StaticResource FilterExpanderStyle}">
+                            <StackPanel>
+                                <CheckBox Content="Автомат" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Механика" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Робот" Style="{StaticResource FilterCheckBoxStyle}"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <Separator Background="#EEE" Margin="0,0,0,15"/>
+
+                        <Expander Header="ДВИГАТЕЛЬ" Style="{StaticResource FilterExpanderStyle}">
+                            <StackPanel>
+                                <CheckBox Content="Бензин" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Дизель" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Электро" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                <CheckBox Content="Гибрид" Style="{StaticResource FilterCheckBoxStyle}"/>
+                            </StackPanel>
+                        </Expander>
+
+                        <Button Content="Применить" Style="{StaticResource RoundedButtonStyle}" Margin="0,20,0,0"/>
+                        <Button Content="Сбросить" Background="Transparent" Foreground="Gray" BorderThickness="0" Margin="0,10,0,0" Cursor="Hand"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+                <Grid>
+                    <ItemsControl x:Name="CarsGridControl" Visibility="Visible">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="12" Width="280" Margin="0,0,20,20" Cursor="Hand" MouseLeftButtonUp="Car_Click">
+                                    <Border.Effect>
+                                        <DropShadowEffect Color="#E5E9F2" BlurRadius="10" ShadowDepth="2" Opacity="0.5"/>
+                                    </Border.Effect>
+                                    <StackPanel>
+                                        <Grid Height="160">
+                                            <Border CornerRadius="12,12,0,0" Background="#EEE"/>
+                                            <Image Source="{Binding ImagePath}" Stretch="UniformToFill">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="0,0,280,160" RadiusX="12" RadiusY="12"/>
+                                                </Image.Clip>
+                                            </Image>
+                                            <Border Background="#E0F2F1" CornerRadius="4" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="10" Padding="8,4">
+                                                <TextBlock Text="{Binding StatusName}" FontSize="12" FontWeight="Bold" Foreground="#009688"/>
+                                            </Border>
+                                        </Grid>
+
+                                        <StackPanel Margin="15">
+                                            <Grid Margin="0,0,0,5">
+                                                <TextBlock Text="{Binding Model}" FontWeight="Bold" FontSize="16" Foreground="#333"/>
+                                                <TextBlock Text="{Binding PricePerDay, StringFormat={}{0:N0} ₽}" HorizontalAlignment="Right" FontWeight="Bold" Foreground="{StaticResource GreenAccentBrush}"/>
+                                            </Grid>
+                                            <TextBlock Text="{Binding ClassName}" FontSize="12" Foreground="Gray"/>
+
+                                            <Separator Margin="0,10" Background="#F0F0F0"/>
+
+                                            <Grid>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="📅" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="{Binding Year}" FontSize="12" Foreground="#555"/>
+                                                </StackPanel>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                    <TextBlock Text="⚙" Margin="0,0,5,0"/>
+                                                    <TextBlock Text="{Binding Mileage, StringFormat={}{0:N0} км}" FontSize="12" Foreground="#555"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <ItemsControl x:Name="CarsListControl" Visibility="Collapsed">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="White" CornerRadius="10" Margin="0,0,0,10" Padding="10" Cursor="Hand" MouseLeftButtonUp="Car_Click">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Border CornerRadius="8" Background="#EEE" Height="80">
+                                            <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
+                                        </Border>
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="15,0">
+                                            <TextBlock Text="{Binding Model}" FontWeight="Bold" FontSize="16"/>
+                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                <TextBlock Text="{Binding ClassName}" Foreground="Gray" Margin="0,0,10,0"/>
+                                                <TextBlock Text="•" Foreground="Gray" Margin="0,0,10,0"/>
+                                                <TextBlock Text="{Binding PlateNumber}" Foreground="Gray"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                            <TextBlock Text="{Binding PricePerDay, StringFormat={}{0:N0} ₽}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource GreenAccentBrush}" HorizontalAlignment="Right"/>
+                                            <Border Background="#E0F2F1" CornerRadius="4" Margin="0,5,0,0" Padding="8,2" HorizontalAlignment="Right">
+                                                <TextBlock Text="{Binding StatusName}" FontSize="11" Foreground="#009688"/>
+                                            </Border>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </ScrollViewer>
+        </Grid>
     </Grid>
 </Page>

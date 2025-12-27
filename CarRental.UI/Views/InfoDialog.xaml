@@ -100,7 +100,7 @@
 
                 <Button x:Name="ActionButton"
                         Content="ОК" 
-                        Style="{StaticResource TealButton}" 
+                        Style="{StaticResource RoundedButtonStyle}" 
                         Width="120" Height="40" FontSize="14"
                         Click="Close_Click"/>
             </StackPanel>
