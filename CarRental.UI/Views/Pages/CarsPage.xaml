@@ -239,10 +239,10 @@
                                     </Border.Effect>
                                     <StackPanel>
                                         <Grid Height="180">
-                                            <Border CornerRadius="15,15,0,0" Background="#F5F5F5"/>
+                                            <Border CornerRadius="15,15,0,0" Background="#555"/>
                                             <Image Source="{Binding ImagePath}" Stretch="UniformToFill">
                                                 <Image.Clip>
-                                                    <RectangleGeometry Rect="0,0,340,180" RadiusX="15" RadiusY="15"/>
+                                                    <RectangleGeometry Rect="0,0,275,180" RadiusX="15" RadiusY="15"/>
                                                 </Image.Clip>
                                             </Image>
 
@@ -313,9 +313,14 @@
                                         </Grid.ColumnDefinitions>
 
                                         <Grid Grid.Column="0" MinHeight="110">
-                                            <Border CornerRadius="12,0,0,12" Background="#F5F5F5" ClipToBounds="True">
-                                                <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
-                                            </Border>
+                                            <Border CornerRadius="12,0,0,12" Background="#F5F5F5"/>
+
+                                            <Image Source="{Binding ImagePath}" Stretch="UniformToFill" 
+                                                   HorizontalAlignment="Left" Width="140">
+                                                <Image.Clip>
+                                                    <RectangleGeometry Rect="0,0,150,110" RadiusX="12" RadiusY="12"/>
+                                                </Image.Clip>
+                                            </Image>
 
                                             <Border Background="White" CornerRadius="6" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" 
                                                     Width="24" Height="24" Cursor="Hand" ToolTip="Редактировать"
