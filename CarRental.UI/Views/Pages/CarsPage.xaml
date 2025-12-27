@@ -15,12 +15,11 @@
 
         <Grid Grid.Row="1" Margin="0,0,0,20">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="20"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
@@ -62,10 +61,10 @@
                 </RadioButton>
             </StackPanel>
 
-            <Button Grid.Column="6" Content="+ Добавить" 
+            <Button x:Name="BtnAdd" Grid.Column="5" Content="+ Добавить" 
                     Background="{StaticResource GreenGradientBrush}" BorderThickness="0"
                     Foreground="White" FontSize="14" FontWeight="SemiBold"
-                    Width="140" Height="45"
+                    Width="140" Height="45" Margin="10,0,10,0"
                     Style="{StaticResource ButtonPrimary}"/>
         </Grid>
 
@@ -78,9 +77,57 @@
             <Border Background="White" CornerRadius="12" Padding="20" VerticalAlignment="Top" Margin="0,0,25,0">
                 <ScrollViewer VerticalScrollBarVisibility="Hidden">
                     <StackPanel>
+                        <TextBlock Text="Сортировка" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
+                        <Grid Margin="0,0,0,15">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="40"/>
+                            </Grid.ColumnDefinitions>
+
+                            <hc:ComboBox x:Name="SortCombo" SelectedIndex="0" Height="35" 
+                                         SelectionChanged="Sort_Changed"
+                                         BorderThickness="1" BorderBrush="#E0E0E0">
+                                <ComboBoxItem Content="По цене"/>
+                                <ComboBoxItem Content="По названию"/>
+                            </hc:ComboBox>
+
+                            <ToggleButton x:Name="SortDirectionBtn" Grid.Column="1" Margin="5,0,0,0"
+                                          Height="35" Width="35" 
+                                          Background="White" BorderBrush="#E0E0E0" BorderThickness="1"
+                                          Style="{StaticResource ToggleButtonCustom}" 
+                                          Click="Sort_Changed" Cursor="Hand">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="border" Background="{TemplateBinding Background}" 
+                                                BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" 
+                                                CornerRadius="4">
+                                            <Path x:Name="icon" Data="{StaticResource SortIconGeom}" Fill="#555" Stretch="Uniform" Width="16" Height="16" RenderTransformOrigin="0.5,0.5">
+                                                <Path.RenderTransform>
+                                                    <ScaleTransform ScaleY="1"/>
+                                                </Path.RenderTransform>
+                                            </Path>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="border" Property="Background" Value="{StaticResource GreenHoverBrush}"/>
+                                                <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource GreenAccentBrush}"/>
+                                                <Setter TargetName="icon" Property="Fill" Value="{StaticResource GreenAccentBrush}"/>
+                                                <Setter TargetName="icon" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <ScaleTransform ScaleY="-1"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+                        </Grid>
+
+                        <Separator Background="#EEE" Margin="0,0,0,15"/>
                         <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
                             <TextBlock Text="⚲" Foreground="{StaticResource GreenAccentBrush}" FontSize="18" Margin="0,0,10,0" VerticalAlignment="Center"/>
-                            <TextBlock Text="Фильтры" FontWeight="Bold" FontSize="18" VerticalAlignment="Center"/>
+                            <TextBlock Text="Фильтры" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
                         </StackPanel>
 
                         <Expander Header="ЦЕНА ЗА СУТКИ (BYN)" IsExpanded="True" BorderThickness="0" Style="{StaticResource FilterExpanderStyle}">
@@ -200,7 +247,8 @@
                                             </Image>
 
                                             <Border Background="White" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" 
-                                                    Width="32" Height="32" Cursor="Hand" ToolTip="Редактировать">
+                                                    Width="32" Height="32" Cursor="Hand" ToolTip="Редактировать"
+                                                    Visibility="{Binding EditVisibility}">
                                                 <Border.Effect>
                                                     <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="5"/>
                                                 </Border.Effect>
@@ -213,12 +261,16 @@
                                         </Grid>
 
                                         <StackPanel Margin="20">
-                                            <Grid Margin="0,0,0,5">
-                                                <TextBlock Text="{Binding BrandAndModel}" FontWeight="Bold" FontSize="18" Foreground="#333"/>
+                                            <TextBlock Text="{Binding BrandAndModel}" FontWeight="Bold" FontSize="16" Foreground="#333" Margin="0,0,0,5"/>
+
+                                            <Grid Margin="0,0,0,15">
+                                                <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                                                    <TextBlock Text="{Binding ClassName}" Foreground="Gray" FontSize="12"/>
+                                                    <TextBlock Text=" • " Foreground="Gray" FontSize="12"/>
+                                                    <TextBlock Text="{Binding BodyTypeName}" Foreground="Gray" FontSize="12"/>
+                                                </StackPanel>
                                                 <TextBlock Text="{Binding PricePerDay, StringFormat={}{0:N0} BYN}" HorizontalAlignment="Right" FontWeight="Bold" FontSize="16" Foreground="{StaticResource GreenAccentBrush}"/>
                                             </Grid>
-
-                                            <TextBlock Text="{Binding ClassName}" FontSize="13" Foreground="Gray" Margin="0,0,0,15"/>
 
                                             <Separator Margin="0,0,0,15" Background="#F0F0F0"/>
 
@@ -249,37 +301,57 @@
                     <ItemsControl x:Name="CarsListControl" Visibility="Collapsed">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="White" CornerRadius="10" Margin="0,0,20,10" Padding="15" Cursor="Hand" MouseLeftButtonUp="Car_Click">
+                                <Border Background="White" CornerRadius="12" Margin="0,0,10,15" Cursor="Hand" MouseLeftButtonUp="Car_Click">
                                     <Border.Effect>
                                         <DropShadowEffect Color="#E5E9F2" BlurRadius="5" ShadowDepth="1" Opacity="0.3"/>
                                     </Border.Effect>
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="140"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <Border CornerRadius="8" Background="#EEE" Height="60">
-                                            <Image Source="{Binding ImagePath}" Stretch="UniformToFill">
-                                                <Image.Clip>
-                                                    <RectangleGeometry Rect="0,0,100,60" RadiusX="8" RadiusY="8"/>
-                                                </Image.Clip>
-                                            </Image>
-                                        </Border>
+                                        <Grid Grid.Column="0" MinHeight="110">
+                                            <Border CornerRadius="12,0,0,12" Background="#F5F5F5" ClipToBounds="True">
+                                                <Image Source="{Binding ImagePath}" Stretch="UniformToFill"/>
+                                            </Border>
+
+                                            <Border Background="White" CornerRadius="6" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" 
+                                                    Width="24" Height="24" Cursor="Hand" ToolTip="Редактировать"
+                                                    Visibility="{Binding EditVisibility}">
+                                                <Path Data="{StaticResource EditIconGeom}" Fill="#333" Stretch="Uniform" Margin="6"/>
+                                            </Border>
+                                        </Grid>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0">
-                                            <TextBlock Text="{Binding BrandAndModel}" FontWeight="Bold" FontSize="16" Foreground="#333"/>
-                                            <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                                                <TextBlock Text="{Binding ClassName}" Foreground="Gray" Margin="0,0,10,0"/>
-                                                <TextBlock Text="•" Foreground="Gray" Margin="0,0,10,0"/>
-                                                <TextBlock Text="{Binding PlateNumber}" Foreground="Gray"/>
+                                            <TextBlock Text="{Binding BrandAndModel}" FontWeight="Bold" FontSize="16" Foreground="#333" Margin="0,0,0,5"/>
+
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                <TextBlock Text="{Binding ClassName}" Foreground="Gray" FontSize="12"/>
+                                                <TextBlock Text=" • " Foreground="Gray" FontSize="12"/>
+                                                <TextBlock Text="{Binding BodyTypeName}" Foreground="Gray" FontSize="12"/>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal">
+                                                <Path Data="{StaticResource CalendarIconGeom}" Fill="#777" Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="{Binding Year}" FontSize="12" Foreground="#555" VerticalAlignment="Center" Margin="0,0,15,0"/>
+
+                                                <Path Data="{StaticResource SpeedometerIconGeom}" Fill="#777" Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="{Binding Mileage, StringFormat={}{0:N0} км}" FontSize="12" Foreground="#555" VerticalAlignment="Center" Margin="0,0,15,0"/>
+
+                                                <Path Data="{StaticResource ShieldIconGeom}" Fill="{Binding InsuranceIndicatorColor}" 
+                                                      Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" Margin="0,0,8,0" ToolTip="Страховка"/>
+                                                <Path Data="{StaticResource WrenchIconGeom}" Fill="{Binding MaintenanceIndicatorColor}" 
+                                                      Width="14" Height="14" Stretch="Uniform" VerticalAlignment="Center" ToolTip="Обслуживание"/>
                                             </StackPanel>
                                         </StackPanel>
 
-                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right">
-                                            <TextBlock Text="{Binding PricePerDay, StringFormat={}{0:N0} BYN}" FontWeight="Bold" FontSize="16" Foreground="{StaticResource GreenAccentBrush}" HorizontalAlignment="Right"/>
-                                            <Border Background="{Binding StatusBgHex}" CornerRadius="4" Margin="0,5,0,0" Padding="8,2" HorizontalAlignment="Right">
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,0,20,0">
+                                            <TextBlock Text="{Binding PricePerDay, StringFormat={}{0:N0} BYN}" FontWeight="Bold" FontSize="18" 
+                                                       Foreground="{StaticResource GreenAccentBrush}" HorizontalAlignment="Right" Margin="0,0,0,8"/>
+
+                                            <Border Background="{Binding StatusBgHex}" CornerRadius="6" Padding="10,4" HorizontalAlignment="Right">
                                                 <TextBlock Text="{Binding StatusName}" FontSize="11" FontWeight="Bold" Foreground="{Binding StatusColorHex}"/>
                                             </Border>
                                         </StackPanel>

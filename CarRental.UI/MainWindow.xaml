@@ -157,7 +157,7 @@
                     </StackPanel>
                 </Border>
 
-                <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Margin="10"/>
+                <Frame x:Name="MainFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Margin="20" BorderThickness="0"/>
             </Grid>
         </Grid>
     </Border>

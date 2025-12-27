@@ -31,6 +31,7 @@
         public DateTime? InsuranceExpiryDate { get; set; }
         public DateTime? NextMaintenanceDate { get; set; }
         public string BrandAndModel => $"{BrandName} {Model}";
+        public string EditVisibility { get; set; } = "Collapsed";
         public string StatusColorHex
         {
             get
