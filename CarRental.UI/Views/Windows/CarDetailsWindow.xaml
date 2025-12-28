@@ -239,12 +239,60 @@
                                               Style="{StaticResource ModernDataGrid}" 
                                               CanUserSortColumns="True"
                                               MouseDoubleClick="MaintenanceGrid_MouseDoubleClick">
+
                                         <DataGrid.Columns>
-                                            <DataGridTextColumn Header="Период" Binding="{Binding Period}" Width="160"/>
-                                            <DataGridTextColumn Header="Тип" Binding="{Binding ServiceType}" Width="120" FontWeight="Bold"/>
-                                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*" ElementStyle="{StaticResource WrapTextCell}"/>
+
+                                            <DataGridTemplateColumn Header="Период" Width="100" SortMemberPath="DateStart">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding DateStart, StringFormat=dd.MM.yyyy}" 
+                                                                       FontWeight="SemiBold" Foreground="#333"/>
+                                                            <TextBlock Text="{Binding DateEnd, StringFormat=dd.MM.yyyy, TargetNullValue='...'}" 
+                                                                       Foreground="#90A4AE" FontSize="11" Margin="0,2,0,0"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+
+                                            <DataGridTemplateColumn Header="Тип работ" Width="140" SortMemberPath="ServiceType">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding ServiceType}" 
+                                                                   TextWrapping="Wrap" 
+                                                                   FontWeight="Bold" 
+                                                                   VerticalAlignment="Center"/>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+
                                             <DataGridTextColumn Header="Цена" Binding="{Binding Cost, StringFormat={}{0:N2} BYN}" Width="90"/>
-                                            <DataGridTextColumn Header="Мастер" Binding="{Binding MechanicFullName}" Width="180" ElementStyle="{StaticResource WrapTextCell}"/>
+
+                                            <DataGridTemplateColumn Header="Ответственный" Width="160" SortMemberPath="MechanicName">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <StackPanel VerticalAlignment="Center">
+                                                            <TextBlock Text="{Binding MechanicName}" FontWeight="SemiBold"/>
+                                                            <TextBlock Text="{Binding MechanicPosition}" 
+                                                                       Foreground="#90A4AE" FontSize="11" Margin="0,2,0,0"
+                                                                       TextTrimming="CharacterEllipsis"/>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+
+                                            <DataGridTemplateColumn Header="Описание" Width="*">
+                                                <DataGridTemplateColumn.CellTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Description}" 
+                                                                   TextWrapping="Wrap" 
+                                                                   Foreground="#555"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,10,0"/>
+                                                    </DataTemplate>
+                                                </DataGridTemplateColumn.CellTemplate>
+                                            </DataGridTemplateColumn>
+
                                         </DataGrid.Columns>
                                     </DataGrid>
                                 </Grid>

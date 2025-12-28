@@ -539,7 +539,8 @@
             <Style x:Key="ModernDataGrid" TargetType="DataGrid">
                 <Setter Property="Background" Value="White"/>
                 <Setter Property="BorderThickness" Value="0"/>
-                <Setter Property="RowHeight" Value="40"/>
+                <Setter Property="MinRowHeight" Value="40"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="GridLinesVisibility" Value="Horizontal"/>
                 <Setter Property="HorizontalGridLinesBrush" Value="#F0F0F0"/>
                 <Setter Property="HeadersVisibility" Value="Column"/>
@@ -558,6 +559,53 @@
                             <Setter Property="Height" Value="40"/>
                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             <Setter Property="BorderBrush" Value="#EEEEEE"/>
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="DataGridColumnHeader">
+                                        <Grid>
+                                            <Border Padding="{TemplateBinding Padding}" 
+                                                    Background="{TemplateBinding Background}"
+                                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                                    BorderThickness="{TemplateBinding BorderThickness}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <ContentPresenter HorizontalAlignment="Left" 
+                                                      VerticalAlignment="Center" 
+                                                      RecognizesAccessKey="True"
+                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+
+                                                    <Path x:Name="SortArrow" Grid.Column="1"
+                                          Data="M0,0 L10,0 L5,5 z"
+                                          Fill="{StaticResource GreenAccentBrush}"
+                                          Margin="5,0,0,0"
+                                          VerticalAlignment="Center"
+                                          Visibility="Collapsed"
+                                          Stretch="Fill" Width="8" Height="6"/>
+                                                </Grid>
+                                            </Border>
+                                        </Grid>
+
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="SortDirection" Value="Ascending">
+                                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                                <Setter TargetName="SortArrow" Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                                <Setter TargetName="SortArrow" Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <RotateTransform Angle="180"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Trigger>
+                                            <Trigger Property="SortDirection" Value="Descending">
+                                                <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
                         </Style>
                     </Setter.Value>
                 </Setter>
