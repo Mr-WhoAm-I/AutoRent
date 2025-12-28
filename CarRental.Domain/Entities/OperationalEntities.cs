@@ -11,8 +11,10 @@
         public DateTime EndDate { get; set; }
         public string? Comment { get; set; }
 
-        public string ClientFullName { get; set; } = string.Empty;
-        public string CarDisplayName { get; set; } = string.Empty;
+        public Car Car { get; set; } = new Car();
+
+        public string CarDisplayName => $"{Car.BrandName} {Car.Model}";
+        public string CarSubInfo => $"{Car.ClassName} • {Car.PlateNumber}";
     }
 
     public class Rental
@@ -28,9 +30,11 @@
 
         public decimal PriceAtRentalMoment { get; set; }
         public decimal? TotalPrice { get; set; }
+        public string? Review { get; set; }
+        public Car Car { get; set; } = new Car();
 
-        public string ClientSurname { get; set; } = string.Empty;
-        public string CarModel { get; set; } = string.Empty;
+        public string CarDisplayName => $"{Car.BrandName} {Car.Model}";
+        public string CarSubInfo => $"{Car.ClassName} • {Car.PlateNumber}";
     }
 
     public class Payment

@@ -59,5 +59,52 @@ namespace CarRental.DAL.Repositories
             }
             return ids;
         }
+
+        public List<Booking> GetByClientId(int clientId)
+        {
+            var list = new List<Booking>();
+            string sql = @"
+                SELECT b.ID, b.IDАвтомобиля, b.ДатаНачала, b.ДатаОкончания, b.Комментарий,
+                       a.Модель, a.ГосНомер, a.Фото,
+                       m.Название as Марка, c.Название as Класс, c.ID as IDКласса
+                FROM Бронирование b
+                JOIN Автомобиль a ON b.IDАвтомобиля = a.ID
+                JOIN Марка m ON a.IDМарки = m.ID
+                JOIN КлассАвтомобиля c ON a.IDКласса = c.ID
+                WHERE b.IDКлиента = @ClientId";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@ClientId", clientId);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var booking = new Booking
+                {
+                    Id = (int)reader["ID"],
+                    CarId = (int)reader["IDАвтомобиля"],
+                    StartDate = (DateTime)reader["ДатаНачала"],
+                    EndDate = (DateTime)reader["ДатаОкончания"],
+                    Comment = reader["Комментарий"] as string
+                };
+
+                // ЗАПОЛНЯЕМ CAR
+                booking.Car = new Car
+                {
+                    Id = booking.CarId,
+                    BrandName = reader["Марка"].ToString() ?? "",
+                    Model = reader["Модель"].ToString() ?? "",
+                    PlateNumber = reader["ГосНомер"].ToString() ?? "",
+                    ClassName = reader["Класс"].ToString() ?? "",
+                    ClassId = (int)reader["IDКласса"],
+                    ImagePath = reader["Фото"] as string
+                };
+
+                list.Add(booking);
+            }
+            return list;
+        }
     }
 }

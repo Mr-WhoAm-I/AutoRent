@@ -5,7 +5,23 @@ namespace CarRental.DAL.Repositories
 {
     public class ReferenceRepository : BaseRepository
     {
-        // Получить все марки
+        // Получить список ролей
+        public List<Role> GetRoles()
+        {
+            var list = new List<Role>();
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using var cmd = new SqlCommand("SELECT ID, Название FROM Роль", conn);
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    list.Add(new Role { Id = (int)reader["ID"], Name = reader["Название"].ToString() ?? "" });
+                }
+            }
+            return list;
+        }
+
         public List<CarBrand> GetBrands()
         {
             var list = new List<CarBrand>();

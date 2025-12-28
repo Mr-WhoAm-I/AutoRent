@@ -1,0 +1,65 @@
+﻿<Window x:Class="CarRental.UI.Views.Windows.EmployeeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Сотрудник" Height="510" Width="850"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        MouseDown="Window_MouseDown" FontFamily="Segoe UI">
+
+    <Border Background="White" CornerRadius="15" BorderBrush="#E0E0E0" BorderThickness="1" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.3"/>
+        </Border.Effect>
+
+        <Grid Margin="30">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,25">
+                <TextBlock x:Name="TxtTitle" Text="Новый сотрудник" FontSize="24" FontWeight="Bold" Foreground="#333"/>
+                <Button Content="✕" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Style="{StaticResource WindowControlButtonStyle}" Foreground="#999" Click="Close_Click"/>
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Личные данные" FontWeight="Bold" Margin="0,0,0,15" Foreground="#555" FontSize="16"/>
+
+                    <TextBox x:Name="TxtSurname" Style="{StaticResource FloatingHintTextBox}" Tag="Фамилия"/>
+                    <TextBox x:Name="TxtName" Style="{StaticResource FloatingHintTextBox}" Tag="Имя" Margin="0,15,0,0"/>
+                    <TextBox x:Name="TxtPosition" Style="{StaticResource FloatingHintTextBox}" Tag="Должность" Margin="0,15,0,0"/>
+
+                    <ComboBox x:Name="ComboRole" Style="{StaticResource FloatingHintComboBox}" Tag="Роль в системе"
+                              DisplayMemberPath="Name" SelectedValuePath="Id" Margin="0,15,0,0"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="Вход в систему" FontWeight="Bold" Margin="0,0,0,15" Foreground="#555" FontSize="16"/>
+
+                    <TextBox x:Name="TxtLogin" Style="{StaticResource FloatingHintTextBox}" Tag="Логин"/>
+
+                    <TextBox x:Name="TxtPassword" Style="{StaticResource FloatingHintTextBox}" Tag="Пароль" 
+                             Margin="0,15,0,0"/>
+
+                    <TextBlock Text="* Пароль виден, чтобы избежать ошибок при вводе." 
+                               FontSize="11" Foreground="#999" Margin="0,10,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </Grid>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,30,0,0">
+                <Button Content="Отмена" Style="{StaticResource ButtonDashed}" Width="100" Height="45" Margin="0,0,15,0" Click="Close_Click"/>
+                <Button Content="Сохранить" Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" 
+                        BorderThickness="0" Width="140" Height="45" FontSize="16" Click="Save_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

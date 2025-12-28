@@ -41,7 +41,7 @@ namespace CarRental.BLL.Services
         }
 
         // Вспомогательный метод хеширования
-        private static string ComputeSha256Hash(string rawData)
+        public static string ComputeSha256Hash(string rawData)
         {
             // Преобразуем строку в байты
             byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(rawData));

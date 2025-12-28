@@ -1,11 +1,56 @@
 ﻿<Page x:Class="CarRental.UI.Views.Pages.EmployeesPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Сотрудники" FontFamily="Segoe UI">
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      Title="Сотрудники" FontFamily="Segoe UI" Loaded="Page_Loaded">
 
-    <Grid>
-        <TextBlock Text="Управление сотрудниками" 
-                   FontSize="32" FontWeight="SemiBold" Foreground="#333"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+    <Grid Margin="0,0,10,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Сотрудники" FontSize="26" FontWeight="Bold" Foreground="#333" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <hc:SearchBar x:Name="SearchBox" 
+                          Height="40" FontSize="14"
+                          Style="{StaticResource SearchBarPlus}"
+                          hc:InfoElement.Placeholder="Поиск (ФИО, Логин)..."
+                          hc:InfoElement.ShowClearButton="True"
+                          TextChanged="Search_TextChanged"/>
+
+            <Button Grid.Column="2" Content="+ Добавить сотрудника" 
+                    Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" 
+                    BorderThickness="0" Height="40" Padding="20,0"
+                    Click="Add_Click"/>
+        </Grid>
+
+        <DataGrid x:Name="EmployeesGrid" Grid.Row="2" 
+                  Style="{StaticResource ModernDataGrid}"
+                  CanUserSortColumns="True">
+
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Редактировать" Click="Edit_Click"/>
+                    <MenuItem Header="Уволить (В архив)" Click="Delete_Click" Foreground="Red"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Фамилия" Binding="{Binding Surname}" Width="150" FontWeight="SemiBold"/>
+                <DataGridTextColumn Header="Имя" Binding="{Binding Name}" Width="150"/>
+                <DataGridTextColumn Header="Должность" Binding="{Binding Position}" Width="180"/>
+                <DataGridTextColumn Header="Роль" Binding="{Binding RoleName}" Width="120"/>
+                <DataGridTextColumn Header="Логин" Binding="{Binding Login}" Width="*"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

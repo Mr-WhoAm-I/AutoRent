@@ -1,11 +1,61 @@
 ﻿<Page x:Class="CarRental.UI.Views.Pages.ClientsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Клиенты" FontFamily="Segoe UI">
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      Title="Клиенты" FontFamily="Segoe UI" Loaded="Page_Loaded">
 
-    <Grid>
-        <TextBlock Text="Управление клиентами" 
-                   FontSize="32" FontWeight="SemiBold" Foreground="#333"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+    <Grid Margin="0,0,10,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Клиенты" FontSize="26" FontWeight="Bold" Foreground="#333" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <hc:SearchBar x:Name="SearchBox" 
+                          Height="40" FontSize="14"
+                          Style="{StaticResource SearchBarPlus}"
+                          hc:InfoElement.Placeholder="Поиск (ФИО, Телефон, Email)..."
+                          hc:InfoElement.ShowClearButton="True"
+                          TextChanged="Search_TextChanged"/>
+
+            <Button Grid.Column="2" Content="+ Новый клиент" 
+                    Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" 
+                    BorderThickness="0" Height="40" Padding="20,0"
+                    Click="Add_Click"/>
+        </Grid>
+
+        <DataGrid x:Name="ClientsGrid" Grid.Row="2" 
+                  Style="{StaticResource ModernDataGrid}"
+                  CanUserSortColumns="True"
+                  MouseDoubleClick="ClientsGrid_MouseDoubleClick">
+
+            <DataGrid.ContextMenu>
+                <ContextMenu>
+                    <MenuItem Header="Открыть карточку" Click="Edit_Click"/>
+                    <MenuItem Header="Редактировать" Click="Edit_Click"/>
+                    <MenuItem Header="Удалить (В архив)" Click="Delete_Click" Foreground="Red"/>
+                </ContextMenu>
+            </DataGrid.ContextMenu>
+
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Клиент" Binding="{Binding FullName}" Width="250" FontWeight="SemiBold"/>
+
+                <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="140"/>
+                <DataGridTextColumn Header="Почта" Binding="{Binding Email}" Width="180"/>
+
+                <DataGridTextColumn Header="Возраст" Binding="{Binding AgeString}" Width="100"/>
+
+                <DataGridTextColumn Header="Стаж" Binding="{Binding ExperienceString}" Width="100"/>
+            </DataGrid.Columns>
+        </DataGrid>
     </Grid>
 </Page>

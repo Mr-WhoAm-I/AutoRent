@@ -236,7 +236,7 @@
                                     </StackPanel>
 
                                     <Grid Grid.Row="1">
-                                        <DataGrid x:Name="MaintenanceGrid" Style="{StaticResource ModernDataGrid}" 
+                                        <DataGrid x:Name="MaintenanceGrid" Style="{StaticResource TimelineDataGrid}" 
                                                   CanUserSortColumns="True" MouseDoubleClick="MaintenanceGrid_MouseDoubleClick">
                                             <DataGrid.ContextMenu>
                                                 <ContextMenu>
@@ -291,7 +291,7 @@
                                     </StackPanel>
 
                                     <Grid Grid.Row="1">
-                                        <DataGrid x:Name="InsuranceGrid" Style="{StaticResource ModernDataGrid}" 
+                                        <DataGrid x:Name="InsuranceGrid" Style="{StaticResource TimelineDataGrid}" 
                                                   CanUserSortColumns="True" MouseDoubleClick="InsuranceGrid_MouseDoubleClick">
                                             <DataGrid.ContextMenu>
                                                 <ContextMenu>

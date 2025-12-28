@@ -88,5 +88,58 @@ namespace CarRental.DAL.Repositories
             }
             return list;
         }
+
+        public List<Rental> GetByClientId(int clientId)
+        {
+            var list = new List<Rental>();
+            string sql = @"
+                SELECT r.ID, r.IDАвтомобиля, r.ДатаНачала, r.ДатаОкончанияПлановая, r.ДатаОкончанияФактическая, 
+                       r.ИтоговаяСтоимость, r.СтоимостьПриАренде, r.Отзыв,
+                       
+                       -- Данные машины для объекта Car
+                       a.Модель, a.ГосНомер, a.Фото,
+                       m.Название as Марка, c.Название as Класс, c.ID as IDКласса
+                FROM Аренда r
+                JOIN Автомобиль a ON r.IDАвтомобиля = a.ID
+                JOIN Марка m ON a.IDМарки = m.ID
+                JOIN КлассАвтомобиля c ON a.IDКласса = c.ID
+                WHERE r.IDКлиента = @ClientId";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@ClientId", clientId);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                var rental = new Rental
+                {
+                    Id = (int)reader["ID"],
+                    CarId = (int)reader["IDАвтомобиля"],
+                    StartDate = (DateTime)reader["ДатаНачала"],
+                    PlannedEndDate = (DateTime)reader["ДатаОкончанияПлановая"],
+                    ActualEndDate = reader["ДатаОкончанияФактическая"] as DateTime?,
+                    TotalPrice = reader["ИтоговаяСтоимость"] as decimal?,
+                    PriceAtRentalMoment = (decimal)reader["СтоимостьПриАренде"],
+                    Review = reader["Отзыв"] as string
+                };
+
+                // ЗАПОЛНЯЕМ ВЛОЖЕННЫЙ ОБЪЕКТ CAR
+                rental.Car = new Car
+                {
+                    Id = rental.CarId,
+                    BrandName = reader["Марка"].ToString() ?? "",
+                    Model = reader["Модель"].ToString() ?? "",
+                    PlateNumber = reader["ГосНомер"].ToString() ?? "",
+                    ClassName = reader["Класс"].ToString() ?? "",
+                    ClassId = (int)reader["IDКласса"],
+                    ImagePath = reader["Фото"] as string
+                };
+
+                list.Add(rental);
+            }
+            return list;
+        }
     }
 }

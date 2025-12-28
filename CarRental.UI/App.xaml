@@ -30,6 +30,27 @@
             <SolidColorBrush x:Key="GreenHoverBrush" Color="#E8F5E9"/>
             <SolidColorBrush x:Key="BrushIcon" Color="#199d43"/>
             <SolidColorBrush x:Key="BrushPlaceholder" Color="#90A4AE"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+            <SolidColorBrush x:Key="ClassEconomyBrush" Color="#00C853"/>
+            <SolidColorBrush x:Key="ClassComfortBrush" Color="#4285F4"/>
+            <SolidColorBrush x:Key="ClassBusinessBrush" Color="#9C27B0"/>
+            <SolidColorBrush x:Key="ClassSUVBrush" Color="#FF9800"/>
+            <SolidColorBrush x:Key="ClassOtherBrush" Color="#607D8B"/>
+            <DrawingBrush x:Key="HatchedBrush" TileMode="Tile" Viewport="0,0,10,10" ViewportUnits="Absolute">
+                <DrawingBrush.Drawing>
+                    <GeometryDrawing>
+                        <GeometryDrawing.Geometry>
+                            <GeometryGroup>
+                                <LineGeometry StartPoint="0,10" EndPoint="10,0"/>
+                            </GeometryGroup>
+                        </GeometryDrawing.Geometry>
+                        <GeometryDrawing.Pen>
+                            <Pen Thickness="2" Brush="#AAFFFFFF"/>
+                        </GeometryDrawing.Pen>
+                    </GeometryDrawing>
+                </DrawingBrush.Drawing>
+            </DrawingBrush>
             <Color x:Key="VibrantShadowColor">#003366</Color>
 
             <StreamGeometry x:Key="SearchIconGeom">
@@ -69,6 +90,32 @@
             <StreamGeometry x:Key="SortIconGeom">
                 M11.1924 5.65685C11.5829 5.26633 11.5829 4.63316 11.1924 4.24264L8.36397 1.41421C8.30576 1.356 8.24485 1.30212 8.18165 1.25259C7.50286 0.720577 6.55947 0.689024 5.84929 1.15793C5.73839 1.23115 5.63317 1.31658 5.53554 1.41421L2.70711 4.24264C2.31658 4.63316 2.31658 5.26633 2.70711 5.65685C3.09763 6.04738 3.7308 6.04738 4.12132 5.65685L6.00003 3.77814V18C6.00003 18.5523 6.44775 19 7.00003 19C7.55232 19 8.00003 18.5523 8.00003 18V3.8787L9.77818 5.65685C10.1687 6.04737 10.8019 6.04737 11.1924 5.65685Z M12.7071 18.3432C12.3166 18.7337 12.3166 19.3668 12.7071 19.7574L15.5355 22.5858C15.6332 22.6834 15.7384 22.7689 15.8493 22.8421C16.6256 23.3546 17.6805 23.2692 18.364 22.5858L21.1924 19.7574C21.5829 19.3668 21.5829 18.7337 21.1924 18.3432C20.8019 17.9526 20.1687 17.9526 19.7782 18.3432L18 20.1213L18 6C18 5.44771 17.5523 5 17 5C16.4477 5 16 5.44771 16 6L16 20.2218L14.1213 18.3432C13.7308 17.9526 13.0976 17.9526 12.7071 18.3432Z
             </StreamGeometry>
+
+            <Style x:Key="EditButtonStyle" TargetType="Button">
+                <Setter Property="Width" Value="32"/>
+                <Setter Property="Height" Value="32"/>
+                <Setter Property="Background" Value="White"/>
+                <Setter Property="Cursor" Value="Hand"/>
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="5" ShadowDepth="0"/>
+                                </Border.Effect>
+                                <Path x:Name="icon" Data="{StaticResource EditIconGeom}" 
+                          Fill="#333" Stretch="Uniform" Margin="8"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="icon" Property="Fill" Value="#FF9800"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
             <Style x:Key="WindowControlButtonStyle" TargetType="Button">
                 <Setter Property="Background" Value="Transparent"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -558,6 +605,28 @@
                 </Setter>
             </Style>
 
+            <Style x:Key="BaseRowStyle" TargetType="DataGridRow">
+                <Setter Property="Cursor" Value="Hand"/>
+                <Style.Triggers>
+                    <Trigger Property="IsSelected" Value="True">
+                        <Setter Property="Background" Value="#E8F5E9"/>
+                    </Trigger>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Background" Value="#F9FAFB"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+
+            <Style x:Key="FutureRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource BaseRowStyle}">
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsFuture}" Value="True">
+                        <Setter Property="Background" Value="#FAFAFA"/>
+                        <Setter Property="Foreground" Value="#B0BEC5"/>
+                        <Setter Property="ToolTip" Value="Запланированное событие (еще не наступило)"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+
             <Style x:Key="ModernDataGrid" TargetType="DataGrid">
                 <Setter Property="Background" Value="White"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -571,13 +640,15 @@
                 <Setter Property="IsReadOnly" Value="True"/>
                 <Setter Property="SelectionMode" Value="Single"/>
 
+                <Setter Property="RowStyle" Value="{StaticResource BaseRowStyle}"/>
+
                 <Setter Property="ColumnHeaderStyle">
                     <Setter.Value>
                         <Style TargetType="DataGridColumnHeader">
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="Foreground" Value="#90A4AE"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
-                            <Setter Property="Padding" Value="5,0"/>
+                            <Setter Property="Padding" Value="10,0"/>
                             <Setter Property="Height" Value="40"/>
                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             <Setter Property="BorderBrush" Value="#EEEEEE"/>
@@ -593,7 +664,6 @@
                                                     <ContentPresenter RecognizesAccessKey="True"
                                                                       SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
                                                                       VerticalAlignment="Center"/>
-
                                                     <Path x:Name="SortArrow"
                                                           Data="M0,0 L10,0 L5,5 z"
                                                           Fill="{StaticResource GreenAccentBrush}"
@@ -604,7 +674,6 @@
                                                 </StackPanel>
                                             </Border>
                                         </Grid>
-
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="SortDirection" Value="Ascending">
                                                 <Setter TargetName="SortArrow" Property="Visibility" Value="Visible"/>
@@ -629,7 +698,7 @@
                 <Setter Property="CellStyle">
                     <Setter.Value>
                         <Style TargetType="DataGridCell">
-                            <Setter Property="Padding" Value="4,4"/>
+                            <Setter Property="Padding" Value="5,5"/>
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="DataGridCell">
@@ -648,29 +717,10 @@
                         </Style>
                     </Setter.Value>
                 </Setter>
+            </Style>
 
-                <Setter Property="RowStyle">
-                    <Setter.Value>
-                        <Style TargetType="DataGridRow">
-                            <Setter Property="Cursor" Value="Hand"/>
-                            <Style.Triggers>
-                                <Trigger Property="IsSelected" Value="True">
-                                    <Setter Property="Background" Value="#E8F5E9"/>
-                                </Trigger>
-
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter Property="Background" Value="#F9FAFB"/>
-                                </Trigger>
-
-                                <DataTrigger Binding="{Binding IsFuture}" Value="True">
-                                    <Setter Property="Background" Value="#FAFAFA"/>
-                                    <Setter Property="Foreground" Value="#B0BEC5"/>
-                                    <Setter Property="ToolTip" Value="Запланированное событие (еще не наступило)"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Setter.Value>
-                </Setter>
+            <Style x:Key="TimelineDataGrid" TargetType="DataGrid" BasedOn="{StaticResource ModernDataGrid}">
+                <Setter Property="RowStyle" Value="{StaticResource FutureRowStyle}"/>
             </Style>
 
             <Style x:Key="WrapTextCell" TargetType="TextBlock">

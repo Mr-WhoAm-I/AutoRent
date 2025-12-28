@@ -13,6 +13,7 @@ namespace CarRental.BLL.Services
             _repository = new ReferenceRepository();
         }
 
+        public List<Role> GetRoles() => _repository.GetRoles();
         public List<CarBrand> GetBrands() => _repository.GetBrands();
         public List<CarClass> GetClasses() => _repository.GetClasses();
         public List<BodyType> GetBodyTypes() => _repository.GetBodyTypes();
