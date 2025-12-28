@@ -302,7 +302,20 @@ namespace CarRental.UI.Views.Windows
                 }
             }
         }
+        private void EditClient_Click(object sender, RoutedEventArgs e)
+        {
+            // Открываем окно редактирования, передавая текущего клиента
+            var editWin = new ClientEditWindow(_client);
+            editWin.ShowDialog();
 
+            if (editWin.IsSuccess)
+            {
+                // Если сохранили - обновляем данные на экране карточки
+                // _client уже обновлен (так как передан по ссылке), просто перерисовываем UI
+                LoadClientInfo();
+                InfoDialog.Show("Данные клиента обновлены!", "Успех");
+            }
+        }
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
         private void Window_MouseDown(object sender, MouseButtonEventArgs e) { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); }
     }

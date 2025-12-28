@@ -60,7 +60,15 @@
                 </Border>
 
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock x:Name="TxtFullName" Text="Петров Иван Иванович" FontSize="24" FontWeight="Bold" Foreground="#333"/>
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock x:Name="TxtFullName" Text="Петров Иван Иванович" FontSize="26" FontWeight="Bold" Foreground="#333"/>
+
+                        <Button Style="{StaticResource EditButtonStyle}" 
+                                Margin="15,0,0,0"
+                                VerticalAlignment="Center"
+                                ToolTip="Редактировать данные клиента"
+                                Click="EditClient_Click"/>
+                    </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                         <TextBlock x:Name="TxtPhone" Text="+375 (29) 111-22-33" Foreground="Gray" FontSize="14"/>
                         <TextBlock Text=" • " Foreground="Gray" Margin="5,0"/>

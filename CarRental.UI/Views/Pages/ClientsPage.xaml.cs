@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using CarRental.BLL.Services;
 using CarRental.Domain.Entities;
-using CarRental.UI.Views.Windows; // Для будущих окон
-using CarRental.UI.Views;         // Для InfoDialog
+using CarRental.UI.Views.Windows; // Для окон
 
 namespace CarRental.UI.Views.Pages
 {
@@ -63,28 +63,34 @@ namespace CarRental.UI.Views.Pages
             }
         }
 
+        // === ВОССТАНОВЛЕННАЯ ЛОГИКА ===
+
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            // TODO: Открыть окно добавления клиента
-            // var win = new ClientWindow();
-            // win.ShowDialog();
-            // if (win.IsSuccess) LoadData();
-            InfoDialog.Show("Окно добавления клиента будет создано на следующем этапе.", "Информация");
+            // Открываем форму создания (ClientEditWindow)
+            var win = new ClientEditWindow();
+            win.ShowDialog();
+
+            if (win.IsSuccess) LoadData();
         }
 
-        private void EditClient_Click(object sender, RoutedEventArgs e)
+        private void Edit_Click(object sender, RoutedEventArgs e)
         {
-            var editWin = new ClientEditWindow(_client);
-            editWin.ShowDialog();
-
-            if (editWin.IsSuccess)
+            // Быстрое редактирование из меню (открываем сразу форму ввода)
+            if (ClientsGrid.SelectedItem is Client client)
             {
-                LoadClientInfo();
-                InfoDialog.Show("Данные клиента обновлены!", "Успех");
+                var win = new ClientEditWindow(client);
+                win.ShowDialog();
+                if (win.IsSuccess) LoadData();
             }
         }
 
-        private void ClientsGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        // Двойной клик открывает КАРТОЧКУ (ClientWindow)
+        private void ClientsGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            OpenDetails();
+        }
+        private void OpenCard_Click(object sender, RoutedEventArgs e)
         {
             OpenDetails();
         }
@@ -93,16 +99,15 @@ namespace CarRental.UI.Views.Pages
         {
             if (ClientsGrid.SelectedItem is Client client)
             {
-                // TODO: Открыть карточку клиента
                 var win = new ClientWindow(client);
                 win.ShowDialog();
+                // Обновляем список, вдруг в карточке что-то поменяли
                 LoadData();
             }
         }
 
         private void Delete_Click(object sender, RoutedEventArgs e)
         {
-            // Удалять могут и Админы, и Менеджеры (согласно ТЗ)
             if (ClientsGrid.SelectedItem is Client client)
             {
                 if (MessageBox.Show($"Вы уверены, что хотите отправить клиента {client.FullName} в архив?",

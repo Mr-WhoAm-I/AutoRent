@@ -40,7 +40,7 @@
 
             <DataGrid.ContextMenu>
                 <ContextMenu>
-                    <MenuItem Header="Открыть карточку" Click="Edit_Click"/>
+                    <MenuItem Header="Открыть карточку" Click="OpenCard_Click"/>
                     <MenuItem Header="Редактировать" Click="Edit_Click"/>
                     <MenuItem Header="Удалить (В архив)" Click="Delete_Click" Foreground="Red"/>
                 </ContextMenu>
