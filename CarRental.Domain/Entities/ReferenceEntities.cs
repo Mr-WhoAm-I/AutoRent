@@ -5,6 +5,9 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+
+        // ВОТ ЭТО ИСПРАВЛЯЕТ ОТОБРАЖЕНИЕ В СПИСКЕ
+        public override string ToString() => Name;
     }
 
     // Класс (Эконом, Бизнес)
@@ -13,6 +16,7 @@
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
+        public override string ToString() => Name;
     }
 
     // Статус (Свободен, В ремонте)
@@ -20,6 +24,7 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public override string ToString() => Name;
     }
 
     // Тип топлива
@@ -27,6 +32,7 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public override string ToString() => Name;
     }
 
     // Тип КПП
@@ -34,6 +40,7 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public override string ToString() => Name;
     }
 
     // Тип кузова
@@ -41,5 +48,6 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public override string ToString() => Name;
     }
 }

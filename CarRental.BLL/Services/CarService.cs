@@ -39,6 +39,17 @@ namespace CarRental.BLL.Services
 
             return schedule;
         }
+
+        public List<int> GetOccupiedCarIds(DateTime start, DateTime end)
+        {
+            return _rentalRepo.GetOccupiedCarIds(start, end);
+        }
+
+        public void AddCar(Car car) => _carRepo.AddCar(car);
+
+        // Метод обновления (понадобится для редактирования)
+        // (Убедись, что в CarRepository есть UpdateCar, если нет — пока оставь пустым или добавь позже)
+        public void UpdateCar(Car car) => _carRepo.UpdateCar(car);
     }
 
     // Вспомогательный класс для календаря

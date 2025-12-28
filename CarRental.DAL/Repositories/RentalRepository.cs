@@ -33,6 +33,28 @@ namespace CarRental.DAL.Repositories
             return list;
         }
 
-        // ... (Остальные методы GetActive и т.д. у нас уже должны быть или будут позже)
+        public List<int> GetOccupiedCarIds(DateTime start, DateTime end)
+        {
+            var ids = new List<int>();
+            // Пересечение интервалов: (StartA <= EndB) and (EndA >= StartB)
+            // У нас: (RentalStart <= FilterEnd) AND (RentalEnd >= FilterStart)
+            string sql = @"
+                SELECT DISTINCT IDАвтомобиля 
+                FROM Аренда 
+                WHERE ДатаНачала <= @End AND (ISNULL(ДатаОкончанияФактическая, ДатаОкончанияПлановая) >= @Start)";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Start", start);
+            cmd.Parameters.AddWithValue("@End", end);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                ids.Add((int)reader["IDАвтомобиля"]);
+            }
+            return ids;
+        }
     }
 }

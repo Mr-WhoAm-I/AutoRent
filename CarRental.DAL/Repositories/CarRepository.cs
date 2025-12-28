@@ -82,7 +82,7 @@ namespace CarRental.DAL.Repositories
             string sql = @"
                 INSERT INTO Автомобиль 
                 (IDМарки, IDКласса, IDКузова, IDТрансмиссии, IDТоплива, IDСтатуса, 
-                 Модель, ГосНомер, ГодВыпуска, Пробег, СтоимостьВСутки, ФотоПуть)
+                 Модель, ГосНомер, ГодВыпуска, Пробег, СтоимостьВСутки, Фото)
                 VALUES 
                 (@BrandId, @ClassId, @BodyId, @TransId, @FuelId, @StatusId, 
                  @Model, @Plate, @Year, @Mileage, @Price, @Photo)";
@@ -105,6 +105,54 @@ namespace CarRental.DAL.Repositories
             command.Parameters.AddWithValue("@Price", car.PricePerDay);
 
             // Обработка NULL для фото
+            if (string.IsNullOrEmpty(car.ImagePath))
+                command.Parameters.AddWithValue("@Photo", DBNull.Value);
+            else
+                command.Parameters.AddWithValue("@Photo", car.ImagePath);
+
+            command.ExecuteNonQuery();
+        }
+
+        // Метод обновления автомобиля
+        public void UpdateCar(Car car)
+        {
+            string sql = @"
+                UPDATE Автомобиль 
+                SET IDМарки = @BrandId,
+                    IDКласса = @ClassId,
+                    IDКузова = @BodyId,
+                    IDТрансмиссии = @TransId,
+                    IDТоплива = @FuelId,
+                    IDСтатуса = @StatusId,
+                    Модель = @Model,
+                    ГосНомер = @Plate,
+                    ГодВыпуска = @Year,
+                    Пробег = @Mileage,
+                    СтоимостьВСутки = @Price,
+                    Фото = @Photo
+                WHERE ID = @Id";
+
+            using var connection = GetConnection();
+            connection.Open();
+            using var command = new SqlCommand(sql, connection);
+
+            command.Parameters.AddWithValue("@Id", car.Id);
+
+            // Внешние ключи
+            command.Parameters.AddWithValue("@BrandId", car.BrandId);
+            command.Parameters.AddWithValue("@ClassId", car.ClassId);
+            command.Parameters.AddWithValue("@BodyId", car.BodyTypeId);
+            command.Parameters.AddWithValue("@TransId", car.TransmissionId);
+            command.Parameters.AddWithValue("@FuelId", car.FuelId);
+            command.Parameters.AddWithValue("@StatusId", car.StatusId);
+
+            // Основные поля
+            command.Parameters.AddWithValue("@Model", car.Model);
+            command.Parameters.AddWithValue("@Plate", car.PlateNumber);
+            command.Parameters.AddWithValue("@Year", car.Year);
+            command.Parameters.AddWithValue("@Mileage", car.Mileage);
+            command.Parameters.AddWithValue("@Price", car.PricePerDay);
+
             if (string.IsNullOrEmpty(car.ImagePath))
                 command.Parameters.AddWithValue("@Photo", DBNull.Value);
             else

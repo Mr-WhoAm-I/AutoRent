@@ -4,7 +4,33 @@
       xmlns:hc="https://handyorg.github.io/handycontrol"
       Title="Автопарк" FontFamily="Segoe UI" Loaded="Page_Loaded">
 
-    <Grid Background="#F5F7FA" Margin="0,0,10,0">
+    <Page.Resources>
+        <Style x:Key="EditButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" CornerRadius="8">
+                            <Border.Effect>
+                                <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="5" ShadowDepth="0"/>
+                            </Border.Effect>
+                            <Path x:Name="icon" Data="{StaticResource EditIconGeom}" 
+                                  Fill="#333" Stretch="Uniform" Margin="8"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="icon" Property="Fill" Value="#FF9800"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+    <Grid Background="#F5F7FA" Margin="0,0,10,0" MouseDown="Page_MouseDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -27,6 +53,7 @@
                           Height="45" FontSize="14"
                           Style="{StaticResource SearchBarPlus}"
                           BorderThickness="0"
+                          TextChanged="Filter_Changed"
                           hc:InfoElement.Placeholder="Поиск по модели..."
                           hc:InfoElement.ShowClearButton="True"/>
 
@@ -37,15 +64,17 @@
                     <TextBlock Text="доступность:" Foreground="{StaticResource GreenAccentBrush}" 
                                VerticalAlignment="Center" Margin="0,0,15,0" FontWeight="SemiBold" FontSize="13"/>
 
-                    <hc:DatePicker Width="120" BorderThickness="0" Background="Transparent" 
+                    <hc:DatePicker x:Name="DateStartPicker" Width="110" BorderThickness="0" Background="Transparent" 
                                    hc:InfoElement.Placeholder="С..." 
-                                   hc:InfoElement.ShowClearButton="True"/>
+                                   hc:InfoElement.ShowClearButton="True"
+                                   SelectedDateChanged="Filter_Changed"/>
 
                     <TextBlock Text="→" Margin="10,0" VerticalAlignment="Center" Foreground="#CCC"/>
 
-                    <hc:DatePicker Width="120" BorderThickness="0" Background="Transparent" 
+                    <hc:DatePicker x:Name="DateEndPicker" Width="110" BorderThickness="0" Background="Transparent" 
                                    hc:InfoElement.Placeholder="По..." 
-                                   hc:InfoElement.ShowClearButton="True"/>
+                                   hc:InfoElement.ShowClearButton="True"
+                                   SelectedDateChanged="Filter_Changed"/>
                 </StackPanel>
             </Border>
 
@@ -65,7 +94,8 @@
                     Background="{StaticResource GreenGradientBrush}" BorderThickness="0"
                     Foreground="White" FontSize="14" FontWeight="SemiBold"
                     Width="140" Height="45" Margin="10,0,10,0"
-                    Style="{StaticResource ButtonPrimary}"/>
+                    Style="{StaticResource ButtonPrimary}"
+                    Click="BtnAdd_Click"/>
         </Grid>
 
         <Grid Grid.Row="2">
@@ -75,7 +105,7 @@
             </Grid.ColumnDefinitions>
 
             <Border Background="White" CornerRadius="12" Padding="20" VerticalAlignment="Top" Margin="0,0,25,0">
-                <ScrollViewer VerticalScrollBarVisibility="Hidden">
+                <hc:ScrollViewer VerticalScrollBarVisibility="Hidden" IsInertiaEnabled="True">
                     <StackPanel>
                         <TextBlock Text="Сортировка" FontWeight="Bold" FontSize="16" VerticalAlignment="Center"/>
                         <Grid Margin="0,0,0,15">
@@ -143,13 +173,13 @@
                                         <ColumnDefinition Width="15"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <hc:TextBox Text="{Binding ValueStart, ElementName=PriceRange}" 
+                                    <hc:TextBox Text="{Binding ValueStart, StringFormat=N2, ElementName=PriceRange, UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="35" BorderThickness="1" BorderBrush="#E0E0E0" 
                                                 Background="White" Foreground="#333"/>
 
                                     <TextBlock Text="—" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
 
-                                    <hc:TextBox Text="{Binding ValueEnd, ElementName=PriceRange}" 
+                                    <hc:TextBox Text="{Binding ValueEnd, StringFormat=N2, ElementName=PriceRange, UpdateSourceTrigger=PropertyChanged}" 
                                                 Height="35" BorderThickness="1" BorderBrush="#E0E0E0"
                                                 Background="White" Foreground="#333" Grid.Column="2"/>
                                 </Grid>
@@ -162,7 +192,8 @@
                             <ItemsControl ItemsSource="{Binding Classes}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding Name}" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                        <CheckBox Content="{Binding Item.Name}" IsChecked="{Binding IsSelected}" 
+                                                  Style="{StaticResource FilterCheckBoxStyle}"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -174,7 +205,8 @@
                             <ItemsControl ItemsSource="{Binding Brands}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding Name}" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                        <CheckBox Content="{Binding Item.Name}" IsChecked="{Binding IsSelected}" 
+                                                  Style="{StaticResource FilterCheckBoxStyle}"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -186,7 +218,8 @@
                             <ItemsControl ItemsSource="{Binding BodyTypes}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding Name}" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                        <CheckBox Content="{Binding Item.Name}" IsChecked="{Binding IsSelected}" 
+                                                  Style="{StaticResource FilterCheckBoxStyle}"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -198,7 +231,8 @@
                             <ItemsControl ItemsSource="{Binding FuelTypes}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding Name}" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                        <CheckBox Content="{Binding Item.Name}" IsChecked="{Binding IsSelected}" 
+                                                  Style="{StaticResource FilterCheckBoxStyle}"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -210,20 +244,24 @@
                             <ItemsControl ItemsSource="{Binding Transmissions}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <CheckBox Content="{Binding Name}" Style="{StaticResource FilterCheckBoxStyle}"/>
+                                        <CheckBox Content="{Binding Item.Name}" IsChecked="{Binding IsSelected}" 
+                                                  Style="{StaticResource FilterCheckBoxStyle}"/>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
                         </Expander>
 
                         <Button Content="Применить" Background="{StaticResource GreenGradientBrush}" 
-                                Style="{StaticResource ButtonPrimary}" Margin="0,10,0,0" BorderThickness="0"/>
-                        <Button Content="Сбросить" Style="{StaticResource ButtonDashed}" Margin="0,10,0,0" BorderBrush="#DDD" Foreground="Gray"/>
+                                Style="{StaticResource ButtonPrimary}" Margin="0,10,0,0" BorderThickness="0"
+                                Click="ApplyFilters_Click"/>
+                        <Button Content="Сбросить" Style="{StaticResource ButtonDashed}" 
+                                Margin="0,10,0,0" BorderBrush="#DDD" Foreground="Gray"
+                                Click="ResetFilters_Click"/>
                     </StackPanel>
-                </ScrollViewer>
+                </hc:ScrollViewer>
             </Border>
 
-            <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+            <hc:ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" IsInertiaEnabled="True">
                 <Grid>
                     <ItemsControl x:Name="CarsGridControl" Visibility="Visible">
                         <ItemsControl.ItemsPanel>
@@ -246,14 +284,15 @@
                                                 </Image.Clip>
                                             </Image>
 
-                                            <Border Background="White" CornerRadius="8" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" 
-                                                    Width="32" Height="32" Cursor="Hand" ToolTip="Редактировать"
-                                                    Visibility="{Binding EditVisibility}">
-                                                <Border.Effect>
+                                            <Button Style="{StaticResource EditButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="15" 
+                                                    ToolTip="Редактировать"
+                                                    Visibility="{Binding EditVisibility}"
+                                                    Click="EditCar_Click">
+                                                <Button.Effect>
                                                     <DropShadowEffect Color="Black" Opacity="0.1" BlurRadius="5"/>
-                                                </Border.Effect>
+                                                </Button.Effect>
                                                 <Path Data="{StaticResource EditIconGeom}" Fill="#333" Stretch="Uniform" Margin="8"/>
-                                            </Border>
+                                            </Button>
 
                                             <Border Background="{Binding StatusBgHex}" CornerRadius="6" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="15" Padding="10,5">
                                                 <TextBlock Text="{Binding StatusName}" FontSize="12" FontWeight="Bold" Foreground="{Binding StatusColorHex}"/>
@@ -322,11 +361,13 @@
                                                 </Image.Clip>
                                             </Image>
 
-                                            <Border Background="White" CornerRadius="6" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" 
+                                            <Button Style="{StaticResource EditButtonStyle}"
+                                                    HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10" 
                                                     Width="24" Height="24" Cursor="Hand" ToolTip="Редактировать"
-                                                    Visibility="{Binding EditVisibility}">
+                                                    Visibility="{Binding EditVisibility}"
+                                                    Click="EditCar_Click">
                                                 <Path Data="{StaticResource EditIconGeom}" Fill="#333" Stretch="Uniform" Margin="6"/>
-                                            </Border>
+                                            </Button>
                                         </Grid>
 
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="20,0">
@@ -366,7 +407,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </Grid>
-            </ScrollViewer>
+            </hc:ScrollViewer>
         </Grid>
     </Grid>
 </Page>
