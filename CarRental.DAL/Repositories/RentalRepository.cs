@@ -143,6 +143,61 @@ namespace CarRental.DAL.Repositories
             return list;
         }
 
+        // Получение полной сущности аренды по ID
+        public Rental? GetRentalById(int id)
+        {
+            string sql = "SELECT * FROM Аренда WHERE ID = @Id";
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return new Rental
+                {
+                    Id = (int)reader["ID"],
+                    ClientId = (int)reader["IDКлиента"],
+                    CarId = (int)reader["IDАвтомобиля"],
+                    EmployeeId = (int)reader["IDСотрудника"],
+                    StartDate = (DateTime)reader["ДатаНачала"],
+                    PlannedEndDate = (DateTime)reader["ДатаОкончанияПлановая"],
+                    ActualEndDate = reader["ДатаОкончанияФактическая"] as DateTime?,
+                    PriceAtRentalMoment = (decimal)reader["СтоимостьПриАренде"],
+                    TotalPrice = reader["ИтоговаяСтоимость"] as decimal?,
+                    Review = reader["Отзыв"] as string
+                };
+            }
+            return null;
+        }
+
+        // Метод обновления (если поменяли даты или машину)
+        public void UpdateRental(Rental rental)
+        {
+            string sql = @"
+                UPDATE Аренда 
+                SET IDКлиента = @ClientId,
+                    IDАвтомобиля = @CarId,
+                    IDСотрудника = @EmpId,
+                    ДатаНачала = @Start,
+                    ДатаОкончанияПлановая = @EndPlan,
+                    СтоимостьПриАренде = @Price
+                WHERE ID = @Id";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", rental.Id);
+            cmd.Parameters.AddWithValue("@ClientId", rental.ClientId);
+            cmd.Parameters.AddWithValue("@CarId", rental.CarId);
+            cmd.Parameters.AddWithValue("@EmpId", rental.EmployeeId);
+            cmd.Parameters.AddWithValue("@Start", rental.StartDate);
+            cmd.Parameters.AddWithValue("@EndPlan", rental.PlannedEndDate);
+            cmd.Parameters.AddWithValue("@Price", rental.PriceAtRentalMoment);
+            cmd.ExecuteNonQuery();
+        }
+
         public List<RentalViewItem> GetRentalsView()
         {
             var list = new List<RentalViewItem>();
@@ -185,6 +240,39 @@ namespace CarRental.DAL.Repositories
                 });
             }
             return list;
+        }
+
+        // Добавление новой аренды
+        public void AddRental(Rental rental)
+        {
+            string sql = @"
+                INSERT INTO Аренда (IDКлиента, IDАвтомобиля, IDСотрудника, ДатаНачала, ДатаОкончанияПлановая, СтоимостьПриАренде)
+                VALUES (@ClientId, @CarId, @EmpId, @Start, @EndPlan, @Price)";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@ClientId", rental.ClientId);
+            cmd.Parameters.AddWithValue("@CarId", rental.CarId);
+            cmd.Parameters.AddWithValue("@EmpId", rental.EmployeeId);
+            cmd.Parameters.AddWithValue("@Start", rental.StartDate);
+            cmd.Parameters.AddWithValue("@EndPlan", rental.PlannedEndDate);
+            cmd.Parameters.AddWithValue("@Price", rental.PriceAtRentalMoment);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        // Завершение аренды (Простановка фактической даты)
+        // Остальные поля (штрафы, платежи) добавляются в свои таблицы, а итоговая стоимость считается во View
+        public void FinishRental(int rentalId, DateTime actualEnd)
+        {
+            string sql = "UPDATE Аренда SET ДатаОкончанияФактическая = @ActualEnd WHERE ID = @Id";
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", rentalId);
+            cmd.Parameters.AddWithValue("@ActualEnd", actualEnd);
+            cmd.ExecuteNonQuery();
         }
     }
 }

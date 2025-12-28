@@ -27,7 +27,7 @@
         public string FuelName { get; set; } = string.Empty;
         public string BodyTypeName { get; set; } = string.Empty;
 
-        public string DisplayName => $"{BrandName} {Model} ({Year})";
+        public string DisplayName => $"{BrandName} {Model} ({PlateNumber}) - {PricePerDay:N0} BYN";
         public DateTime? InsuranceExpiryDate { get; set; }
         public DateTime? NextMaintenanceDate { get; set; }
         public string? NextMaintenanceType { get; set; }

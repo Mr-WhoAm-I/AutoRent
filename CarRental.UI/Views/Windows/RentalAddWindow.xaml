@@ -1,0 +1,92 @@
+﻿<Window x:Class="CarRental.UI.Views.Windows.RentalAddWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        Title="Аренда" Height="720" Width="550"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        MouseDown="Window_MouseDown" FontFamily="Segoe UI">
+
+    <Border Background="White" CornerRadius="15" BorderBrush="#E0E0E0" BorderThickness="1" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.3"/>
+        </Border.Effect>
+
+        <Grid Margin="25">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock x:Name="TxtTitle" Text="Новая аренда" FontSize="22" FontWeight="Bold" Foreground="#333"/>
+                <Button Content="✕" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Style="{StaticResource WindowControlButtonStyle}" Foreground="#999" Click="Close_Click"/>
+            </Grid>
+
+            <StackPanel Grid.Row="1">
+
+                <TextBlock Text="1. Период аренды" FontWeight="Bold" Foreground="#555" Margin="0,0,0,10"/>
+                <Grid Margin="0,0,0,15">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <hc:DatePicker x:Name="DateStart" hc:InfoElement.Placeholder="Начало" 
+                                   SelectedDateChanged="Date_Changed" Height="45"/>
+
+                    <TextBlock Text="—" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="Gray"/>
+
+                    <hc:DatePicker x:Name="DateEnd" Grid.Column="2" hc:InfoElement.Placeholder="Окончание (План)" 
+                                   SelectedDateChanged="Date_Changed" Height="45"/>
+                </Grid>
+
+                <TextBlock Text="2. Автомобиль" FontWeight="Bold" Foreground="#555" Margin="0,0,0,10"/>
+                <ComboBox x:Name="ComboCar" Height="50" Margin="0,0,0,15"
+                          Style="{StaticResource FloatingHintComboBox}" Tag="Выберите автомобиль"
+                          IsEnabled="False" SelectionChanged="ComboCar_SelectionChanged"
+                          DisplayMemberPath="DisplayName"/>
+
+                <TextBlock Text="3. Клиент" FontWeight="Bold" Foreground="#555" Margin="0,0,0,10"/>
+                <ComboBox x:Name="ComboClient" Height="50" Margin="0,0,0,15"
+                          Style="{StaticResource FloatingHintComboBox}" Tag="Выберите клиента"
+                          DisplayMemberPath="FullName"/>
+
+                <TextBlock Text="4. Сотрудник" FontWeight="Bold" Foreground="#555" Margin="0,0,0,10"/>
+                <ComboBox x:Name="ComboEmployee" Height="50" Margin="0,0,0,15"
+                          Style="{StaticResource FloatingHintComboBox}" Tag="Менеджер"
+                          DisplayMemberPath="FullName"/>
+
+                <Border Background="#F9FAFB" CornerRadius="8" Padding="15" Margin="0,10,0,0">
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="Предварительная стоимость:" Foreground="Gray" FontSize="13"/>
+                            <TextBlock x:Name="TxtTotal" Text="0.00 BYN" FontWeight="Bold" FontSize="24" Foreground="{StaticResource GreenAccentBrush}"/>
+                        </StackPanel>
+                        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <TextBlock x:Name="TxtDays" Text="0 суток" Foreground="Gray" HorizontalAlignment="Right"/>
+                            <TextBlock x:Name="TxtPricePerDay" Text="0 BYN/сутки" Foreground="Gray" FontSize="11"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <StackPanel x:Name="PanelFinishRental" Visibility="Collapsed" Margin="0,20,0,0">
+                    <TextBlock Text="Статус аренды:" FontWeight="Bold" Foreground="#555" Margin="0,0,0,5"/>
+                    <Button Content="Завершить аренду (Автомобиль возвращен)" 
+                            Style="{StaticResource ButtonDashed}" BorderBrush="#F44336" Foreground="#F44336"
+                            Height="45" Click="FinishRental_Click"/>
+                </StackPanel>
+
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Отмена" Style="{StaticResource ButtonDashed}" Width="100" Height="40" Margin="0,0,10,0" Click="Close_Click"/>
+                <Button x:Name="BtnSave" Content="Оформить" Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" 
+                        BorderThickness="0" Width="140" Height="40" Click="Save_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

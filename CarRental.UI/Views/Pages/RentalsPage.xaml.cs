@@ -101,7 +101,13 @@ namespace CarRental.UI.Views.Pages
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            InfoDialog.Show("Мастер оформления аренды будет реализован следующим шагом.", "В разработке");
+            var win = new RentalAddWindow();
+            win.ShowDialog();
+
+            if (win.IsSuccess)
+            {
+                LoadData();
+            }
         }
 
         // === ПЕРЕХОДЫ (ССЫЛКИ) ===
@@ -162,7 +168,26 @@ namespace CarRental.UI.Views.Pages
         {
             if (RentalsGrid.SelectedItem is RentalViewItem item)
             {
-                InfoDialog.Show($"Аренда №{item.Id}. Окно просмотра в разработке.", "Инфо");
+                try
+                {
+                    // Получаем полную сущность для редактирования
+                    var rental = _rentalService.GetRentalById(item.Id);
+                    if (rental != null)
+                    {
+                        var win = new RentalAddWindow(rental);
+                        win.ShowDialog();
+
+                        if (win.IsSuccess) LoadData();
+                    }
+                    else
+                    {
+                        InfoDialog.Show("Не удалось найти данные аренды.", "Ошибка", true);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    InfoDialog.Show(ex.Message, "Ошибка", true);
+                }
             }
         }
     }

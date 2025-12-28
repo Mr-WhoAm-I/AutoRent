@@ -34,7 +34,7 @@
                 <hc:DatePicker x:Name="DateEndPicker" Width="120" hc:InfoElement.Placeholder="По..." SelectedDateChanged="Filter_Changed"/>
             </StackPanel>
 
-            <Button Grid.Column="4" Content="+ Оформить аренду" 
+            <Button Grid.Column="4" Content="+ Оформить" 
                     Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" 
                     BorderThickness="0" Height="40" Padding="20,0"
                     Click="Add_Click"/>

@@ -165,32 +165,45 @@ namespace CarRental.DAL.Repositories
         }
 
         // Поиск свободных машин на заданный период
+        // Исправленный метод поиска (SQL остался тем же, но проверим его)
         public List<Car> GetAvailableCars(DateTime start, DateTime end)
         {
             var list = new List<Car>();
 
-            // Запрос исключает машины, которые заняты в этот период (Аренда или Бронь)
-            // Исключаем также списанные (ID=6) и в ремонте (ID=5) для надежности
             string sql = @"
-                SELECT A.*, M.Название as Марка, K.Название as Класс, 
-                       S.Название as Статус, T.Название as Топливо, TR.Название as Трансмиссия
-                FROM Автомобиль A
-                JOIN Марка M ON A.IDМарки = M.ID
-                JOIN КлассАвтомобиля K ON A.IDКласса = K.ID
-                JOIN СтатусАвто S ON A.IDСтатуса = S.ID
-                JOIN ТипТоплива T ON A.IDТоплива = T.ID
-                JOIN ТипТрансмиссии TR ON A.IDТрансмиссии = TR.ID
-                WHERE A.IDСтатуса NOT IN (5, 6) -- Не в ремонте и не списана
-                AND A.ID NOT IN (
-                    -- Занятые в Аренде
-                    SELECT DISTINCT IDАвтомобиля FROM Аренда 
-                    WHERE (ДатаНачала <= @End) AND (ISNULL(ДатаОкончанияФактическая, ДатаОкончанияПлановая) >= @Start)
-                )
-                AND A.ID NOT IN (
-                    -- Занятые в Бронировании
-                    SELECT DISTINCT IDАвтомобиля FROM Бронирование
-                    WHERE (ДатаНачала <= @End) AND (ДатаОкончания >= @Start)
-                )";
+                SELECT 
+                    a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.Фото,
+                    a.IDМарки, m.Название AS МаркаНазвание,
+                    a.IDКласса, c.Название AS КлассНазвание,
+                    a.IDСтатуса, s.Название AS СтатусНазвание,
+                    a.IDТрансмиссии, t.Название AS КППНазвание,
+                    a.IDТоплива, f.Название AS ТопливоНазвание,
+                    a.IDКузова, b.Название AS КузовНазвание,
+                    
+                    (SELECT MAX(ДатаОкончания) FROM Страховка WHERE IDАвтомобиля = a.ID) AS ДатаСтраховки,
+                    (SELECT MIN(ДатаНачала) FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE)) AS ДатаТО,
+                    (SELECT TOP 1 ТипОбслуживания FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE) ORDER BY ДатаНачала) AS ТипТО
+
+                FROM Автомобиль a
+                    INNER JOIN Марка m ON a.IDМарки = m.ID
+                    INNER JOIN КлассАвтомобиля c ON a.IDКласса = c.ID
+                    INNER JOIN СтатусАвто s ON a.IDСтатуса = s.ID
+                    INNER JOIN ТипТрансмиссии t ON a.IDТрансмиссии = t.ID
+                    INNER JOIN ТипТоплива f ON a.IDТоплива = f.ID
+                    INNER JOIN ТипКузова b ON a.IDКузова = b.ID
+                WHERE a.IDСтатуса NOT IN (5, 6) -- Исключаем ремонт и списанные
+                  AND a.ID NOT IN (
+                        SELECT DISTINCT IDАвтомобиля FROM Аренда 
+                        WHERE (ДатаНачала <= @End) AND (ISNULL(ДатаОкончанияФактическая, ДатаОкончанияПлановая) >= @Start)
+                  )
+                  AND a.ID NOT IN (
+                        SELECT DISTINCT IDАвтомобиля FROM Бронирование
+                        WHERE (ДатаНачала <= @End) AND (ДатаОкончания >= @Start)
+                  )
+                  AND a.ID NOT IN (
+                        SELECT DISTINCT IDАвтомобиля FROM Обслуживание
+                        WHERE (ДатаНачала <= @End) AND (ISNULL(ДатаОкончания, '2100-01-01') >= @Start)
+                  )";
 
             using var conn = GetConnection();
             conn.Open();
@@ -201,12 +214,12 @@ namespace CarRental.DAL.Repositories
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
             {
-                list.Add(MapCar(reader)); // Используем ваш вспомогательный метод MapCar
+                list.Add(MapCar(reader));
             }
             return list;
         }
 
-        // Вспомогательный метод для маппинга данных из Reader в объект Car
+        // ИСПРАВЛЕННЫЙ MapCar (Ключи совпадают с SQL)
         private Car MapCar(SqlDataReader reader)
         {
             return new Car
@@ -226,13 +239,17 @@ namespace CarRental.DAL.Repositories
                 PricePerDay = (decimal)reader["СтоимостьВСутки"],
                 ImagePath = reader["Фото"] as string,
 
-                // Данные из JOIN-ов
-                BrandName = reader["Марка"].ToString() ?? "",
-                ClassName = reader["Класс"].ToString() ?? "",
-                StatusName = reader["Статус"].ToString() ?? "",
-                // Если в вашем запросе есть эти поля (в GetAvailableCars они есть):
-                TransmissionName = reader["Трансмиссия"].ToString() ?? "",
-                FuelName = reader["Топливо"].ToString() ?? ""
+                // ВОТ ЗДЕСЬ БЫЛА ОШИБКА. Теперь ключи совпадают с AS в запросе:
+                BrandName = reader["МаркаНазвание"].ToString() ?? "",
+                ClassName = reader["КлассНазвание"].ToString() ?? "",
+                StatusName = reader["СтатусНазвание"].ToString() ?? "",
+                TransmissionName = reader["КППНазвание"].ToString() ?? "",
+                FuelName = reader["ТопливоНазвание"].ToString() ?? "",
+                BodyTypeName = reader["КузовНазвание"].ToString() ?? "",
+
+                InsuranceExpiryDate = reader["ДатаСтраховки"] as DateTime?,
+                NextMaintenanceDate = reader["ДатаТО"] as DateTime?,
+                NextMaintenanceType = reader["ТипТО"] as string
             };
         }
     }

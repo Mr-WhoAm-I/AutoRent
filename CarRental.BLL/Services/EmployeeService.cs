@@ -12,6 +12,19 @@ namespace CarRental.BLL.Services
         public List<Employee> GetAll() => _repo.GetAll();
         public List<Employee> GetMechanics() => _repo.GetByRole("Механик");
 
+        // Получить всех, кто может оформлять аренду (Админы + Менеджеры)
+        public List<Employee> GetManagersAndAdmins()
+        {
+            var admins = _repo.GetByRole("Администратор");
+            var managers = _repo.GetByRole("Менеджер");
+
+            var result = new List<Employee>();
+            result.AddRange(admins);
+            result.AddRange(managers);
+
+            // Можно отсортировать по фамилии
+            return result.OrderBy(e => e.Surname).ToList();
+        }
         // Метод сохранения (УБРАН oldPassword)
         public void Save(Employee emp, string? password)
         {

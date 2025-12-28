@@ -47,6 +47,11 @@ namespace CarRental.BLL.Services
 
             return schedule;
         }
+
+        public List<Car> GetAvailableCars(DateTime start, DateTime end)
+        {
+            return _carRepo.GetAvailableCars(start, end);
+        }
     }
 
     // Вспомогательный класс для календаря

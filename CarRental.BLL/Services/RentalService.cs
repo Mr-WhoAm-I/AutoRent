@@ -13,5 +13,29 @@ namespace CarRental.BLL.Services
         {
             return _repo.GetRentalsView();
         }
+        public void CreateRental(Rental rental)
+        {
+            // Здесь можно добавить валидацию (например, что дата начала < дата окончания)
+            if (rental.StartDate >= rental.PlannedEndDate)
+                throw new Exception("Дата окончания должна быть позже даты начала.");
+
+            _repo.AddRental(rental);
+        }
+
+        public Rental? GetRentalById(int id)
+        {
+            return _repo.GetRentalById(id);
+        }
+
+        public void UpdateRental(Rental rental)
+        {
+            // Здесь тоже можно добавить валидацию
+            _repo.UpdateRental(rental);
+        }
+
+        public void FinishRental(int rentalId)
+        {
+            _repo.FinishRental(rentalId, System.DateTime.Now);
+        }
     }
 }
