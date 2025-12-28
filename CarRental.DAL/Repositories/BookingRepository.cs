@@ -1,7 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+﻿using CarRental.Domain.DTO;
 using CarRental.Domain.Entities;
+using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
 
 namespace CarRental.DAL.Repositories
 {
@@ -103,6 +104,39 @@ namespace CarRental.DAL.Repositories
                 };
 
                 list.Add(booking);
+            }
+            return list;
+        }
+        public List<BookingViewItem> GetBookingsView()
+        {
+            var list = new List<BookingViewItem>();
+            string sql = "SELECT * FROM Представление_Бронирования ORDER BY ДатаНачала";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new BookingViewItem
+                {
+                    Id = (int)reader["ID"],
+                    ClientId = (int)reader["IDКлиента"],
+                    CarId = (int)reader["IDАвтомобиля"],
+
+                    DateStart = (DateTime)reader["ДатаНачала"],
+                    DateEnd = (DateTime)reader["ДатаОкончания"],
+                    DateCreated = (DateTime)reader["ДатаСоздания"],
+
+                    Status = reader["СтатусБрони"].ToString() ?? "",
+                    Comment = reader["Комментарий"] as string ?? "",
+
+                    ClientFullName = reader["КлиентФИО"].ToString() ?? "",
+                    ClientPhone = reader["КлиентТелефон"].ToString() ?? "",
+
+                    CarName = reader["АвтоНазвание"].ToString() ?? "",
+                    CarPlate = reader["ГосНомер"].ToString() ?? ""
+                });
             }
             return list;
         }

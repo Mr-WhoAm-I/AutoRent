@@ -163,5 +163,77 @@ namespace CarRental.DAL.Repositories
 
             command.ExecuteNonQuery();
         }
+
+        // Поиск свободных машин на заданный период
+        public List<Car> GetAvailableCars(DateTime start, DateTime end)
+        {
+            var list = new List<Car>();
+
+            // Запрос исключает машины, которые заняты в этот период (Аренда или Бронь)
+            // Исключаем также списанные (ID=6) и в ремонте (ID=5) для надежности
+            string sql = @"
+                SELECT A.*, M.Название as Марка, K.Название as Класс, 
+                       S.Название as Статус, T.Название as Топливо, TR.Название as Трансмиссия
+                FROM Автомобиль A
+                JOIN Марка M ON A.IDМарки = M.ID
+                JOIN КлассАвтомобиля K ON A.IDКласса = K.ID
+                JOIN СтатусАвто S ON A.IDСтатуса = S.ID
+                JOIN ТипТоплива T ON A.IDТоплива = T.ID
+                JOIN ТипТрансмиссии TR ON A.IDТрансмиссии = TR.ID
+                WHERE A.IDСтатуса NOT IN (5, 6) -- Не в ремонте и не списана
+                AND A.ID NOT IN (
+                    -- Занятые в Аренде
+                    SELECT DISTINCT IDАвтомобиля FROM Аренда 
+                    WHERE (ДатаНачала <= @End) AND (ISNULL(ДатаОкончанияФактическая, ДатаОкончанияПлановая) >= @Start)
+                )
+                AND A.ID NOT IN (
+                    -- Занятые в Бронировании
+                    SELECT DISTINCT IDАвтомобиля FROM Бронирование
+                    WHERE (ДатаНачала <= @End) AND (ДатаОкончания >= @Start)
+                )";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Start", start);
+            cmd.Parameters.AddWithValue("@End", end);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(MapCar(reader)); // Используем ваш вспомогательный метод MapCar
+            }
+            return list;
+        }
+
+        // Вспомогательный метод для маппинга данных из Reader в объект Car
+        private Car MapCar(SqlDataReader reader)
+        {
+            return new Car
+            {
+                Id = (int)reader["ID"],
+                BrandId = (int)reader["IDМарки"],
+                ClassId = (int)reader["IDКласса"],
+                BodyTypeId = (int)reader["IDКузова"],
+                TransmissionId = (int)reader["IDТрансмиссии"],
+                FuelId = (int)reader["IDТоплива"],
+                StatusId = (int)reader["IDСтатуса"],
+
+                Model = reader["Модель"].ToString() ?? "",
+                PlateNumber = reader["ГосНомер"].ToString() ?? "",
+                Year = (int)reader["ГодВыпуска"],
+                Mileage = (int)reader["Пробег"],
+                PricePerDay = (decimal)reader["СтоимостьВСутки"],
+                ImagePath = reader["Фото"] as string,
+
+                // Данные из JOIN-ов
+                BrandName = reader["Марка"].ToString() ?? "",
+                ClassName = reader["Класс"].ToString() ?? "",
+                StatusName = reader["Статус"].ToString() ?? "",
+                // Если в вашем запросе есть эти поля (в GetAvailableCars они есть):
+                TransmissionName = reader["Трансмиссия"].ToString() ?? "",
+                FuelName = reader["Топливо"].ToString() ?? ""
+            };
+        }
     }
 }

@@ -24,7 +24,7 @@
 
             <hc:SearchBar x:Name="SearchBox" Height="40" FontSize="14"
                           Style="{StaticResource SearchBarPlus}"
-                          hc:InfoElement.Placeholder="Поиск (Клиент, Авто, Договор)..."
+                          hc:InfoElement.Placeholder="Поиск (Клиент, Авто)..."
                           hc:InfoElement.ShowClearButton="True"
                           TextChanged="Search_TextChanged"/>
 
@@ -102,14 +102,14 @@
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Статус" Binding="{Binding Status}" FontWeight="Bold" Width="80"/>
 
-                        <DataGridTemplateColumn Header="Период" SortMemberPath="DateStart" Width="80">
+                        <DataGridTemplateColumn Header="Период" SortMemberPath="DateStart" Width="75">
                             <DataGridTemplateColumn.CellTemplate>
                                 <DataTemplate>
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{Binding DateStart, StringFormat=dd.MM.yyyy}" FontWeight="SemiBold" FontSize="13"/>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="по " Foreground="Gray" FontSize="10"/>
-                                            <TextBlock Text="{Binding DisplayEndDate, StringFormat=dd.MM.yyyy}" Foreground="Gray" FontSize="10"/>
+                                            <TextBlock Text="по " FontSize="10"/>
+                                            <TextBlock Text="{Binding DisplayEndDate, StringFormat=dd.MM.yyyy}" FontSize="10"/>
                                         </StackPanel>
                                     </StackPanel>
                                 </DataTemplate>
@@ -150,7 +150,7 @@
                                 <DataTemplate>
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="{Binding EmployeeName}" TextTrimming="CharacterEllipsis"/>
-                                        <TextBlock Text="{Binding EmployeePosition}" Foreground="Gray" FontSize="10"/>
+                                        <TextBlock Text="{Binding EmployeePosition}" FontSize="10"/>
                                     </StackPanel>
                                 </DataTemplate>
                             </DataGridTemplateColumn.CellTemplate>
@@ -174,10 +174,76 @@
             </TabItem>
 
             <TabItem Header="Бронирования">
-                <Grid>
-                    <TextBlock Text="Раздел бронирований в разработке..." 
-                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#CCC" FontSize="16"/>
-                </Grid>
+                <DataGrid x:Name="BookingsGrid" 
+                          Style="{StaticResource ModernDataGrid}"
+                          CanUserSortColumns="True"
+                          RowHeight="55">
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Карточка клиента" Click="OpenClientContext_Click"/>
+                            <MenuItem Header="Карточка авто" Click="OpenCarContext_Click"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+                    <DataGrid.Columns>
+                        <DataGridTemplateColumn Header="Статус" Width="120" SortMemberPath="Status">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Border Background="Transparent" Padding="5,2" CornerRadius="4" HorizontalAlignment="Left">
+                                        <TextBlock Text="{Binding Status}" 
+                                                   Foreground="{Binding StatusColor}" 
+                                                   FontWeight="Bold" VerticalAlignment="Center"/>
+                                    </Border>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Период" SortMemberPath="DateStart" Width="110">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DateStart, StringFormat=dd.MM.yyyy}" FontWeight="SemiBold"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="по " FontSize="11"/>
+                                            <TextBlock Text="{Binding DateEnd, StringFormat=dd.MM.yyyy}" FontSize="11"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Клиент" SortMemberPath="ClientFullName" Width="200">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="OpenClient_Click" Background="Transparent">
+                                        <TextBlock Text="{Binding ClientFullName}" FontWeight="Bold" Foreground="#4F46E5" TextTrimming="CharacterEllipsis"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="{StaticResource UserIconGeom}" Fill="Gray" Height="9" Stretch="Uniform" Margin="0,1,4,0"/>
+                                            <TextBlock Text="{Binding ClientPhone}" Foreground="Gray" FontSize="11"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Автомобиль" SortMemberPath="CarName" Width="180">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="OpenCar_Click" Background="Transparent">
+                                        <TextBlock Text="{Binding CarName}" FontWeight="Bold" Foreground="#4F46E5" TextTrimming="CharacterEllipsis"/>
+                                        <Border Background="#F5F5F5" CornerRadius="3" Padding="4,0" HorizontalAlignment="Left" Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding CarPlate}" Foreground="#555" FontSize="10" FontWeight="Bold"/>
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="Комментарий" Binding="{Binding Comment}" Width="*" ElementStyle="{StaticResource WrapTextCell}"/>
+
+                    </DataGrid.Columns>
+                </DataGrid>
             </TabItem>
         </TabControl>
     </Grid>
