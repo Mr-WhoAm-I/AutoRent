@@ -56,39 +56,35 @@
 
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1*"/>
-                    <ColumnDefinition Width="40"/>
-                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="280"/>
+                    <ColumnDefinition Width="30"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <Border Height="220" CornerRadius="12" Background="#F5F7FA" ClipToBounds="True" Margin="0,0,0,25">
+                    <Border Height="200" CornerRadius="12" Background="#F5F7FA" ClipToBounds="True" Margin="0,0,0,25">
                         <Image x:Name="ImgCar" Stretch="UniformToFill"/>
                     </Border>
-
                     <Grid Margin="0,0,0,25">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="15"/>
+                            <ColumnDefinition Width="10"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-
-                        <Border Grid.Column="0" Background="#FAFAFA" CornerRadius="10" Padding="15">
+                        <Border Grid.Column="0" Background="#FAFAFA" CornerRadius="10" Padding="10">
                             <StackPanel>
-                                <TextBlock Text="ГОД ВЫПУСКА" FontSize="11" Foreground="#90A4AE" FontWeight="Bold"/>
-                                <TextBlock x:Name="TxtYear" Text="2022" FontSize="20" FontWeight="Bold" Foreground="#333" Margin="0,5,0,0"/>
+                                <TextBlock Text="ГОД" FontSize="10" Foreground="#90A4AE" FontWeight="Bold"/>
+                                <TextBlock x:Name="TxtYear" Text="2022" FontSize="18" FontWeight="Bold" Foreground="#333"/>
                             </StackPanel>
                         </Border>
-
-                        <Border Grid.Column="2" Background="#FAFAFA" CornerRadius="10" Padding="15">
+                        <Border Grid.Column="2" Background="#FAFAFA" CornerRadius="10" Padding="10">
                             <StackPanel>
-                                <TextBlock Text="ПРОБЕГ" FontSize="11" Foreground="#90A4AE" FontWeight="Bold"/>
-                                <TextBlock x:Name="TxtMileage" Text="45 000 км" FontSize="20" FontWeight="Bold" Foreground="#333" Margin="0,5,0,0"/>
+                                <TextBlock Text="ПРОБЕГ" FontSize="10" Foreground="#90A4AE" FontWeight="Bold"/>
+                                <TextBlock x:Name="TxtMileage" Text="45k" FontSize="18" FontWeight="Bold" Foreground="#333"/>
                             </StackPanel>
                         </Border>
                     </Grid>
-
-                    <TextBlock Text="Характеристики" FontSize="16" FontWeight="Bold" Margin="0,0,0,15"/>
+                    <TextBlock Text="Характеристики" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
                     <Border BorderBrush="#EEE" BorderThickness="1" CornerRadius="10" Padding="0,5">
                         <StackPanel>
                             <Grid Margin="15,10">
@@ -97,90 +93,202 @@
                             </Grid>
                             <Separator Background="#F5F5F5"/>
                             <Grid Margin="15,10">
-                                <TextBlock Text="Коробка передач" Foreground="Gray"/>
+                                <TextBlock Text="КПП" Foreground="Gray"/>
                                 <TextBlock x:Name="TxtTrans" Text="Автомат" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                             </Grid>
                             <Separator Background="#F5F5F5"/>
                             <Grid Margin="15,10">
-                                <TextBlock Text="Тип топлива" Foreground="Gray"/>
+                                <TextBlock Text="Топливо" Foreground="Gray"/>
                                 <TextBlock x:Name="TxtFuel" Text="Бензин" FontWeight="SemiBold" HorizontalAlignment="Right"/>
                             </Grid>
                             <Separator Background="#F5F5F5"/>
                             <Grid Margin="15,10">
-                                <TextBlock Text="Стоимость в сутки" Foreground="Gray"/>
+                                <TextBlock Text="Тариф" Foreground="Gray"/>
                                 <TextBlock x:Name="TxtPricePerDay" Text="70 BYN" FontWeight="Bold" Foreground="{StaticResource GreenAccentBrush}" HorizontalAlignment="Right"/>
                             </Grid>
                         </StackPanel>
                     </Border>
                 </StackPanel>
 
-                <Border Grid.Column="2" Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="12" Padding="25">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+                <Grid Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
 
-                        <Grid Grid.Row="0" Margin="0,0,0,20">
-                            <TextBlock x:Name="TxtCalendarMonth" Text="Декабрь 2025" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            <Button Content="‹" HorizontalAlignment="Left" Style="{StaticResource WindowControlButtonStyle}" 
-                                    Foreground="#555" FontSize="18" Click="PrevMonth_Click"/>
-                            <Button Content="›" HorizontalAlignment="Right" Style="{StaticResource WindowControlButtonStyle}" 
-                                    Foreground="#555" FontSize="18" Click="NextMonth_Click"/>
-                        </Grid>
+                    <TabControl x:Name="MainTabs" Grid.RowSpan="2" BorderThickness="0" Background="Transparent" SelectedIndex="0">
+                        <TabControl.Resources>
+                            <Style TargetType="TabPanel">
+                                <Setter Property="HorizontalAlignment" Value="Center"/>
+                            </Style>
+                            <Style TargetType="TabItem">
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="TabItem">
+                                            <Grid Cursor="Hand" Background="Transparent" Margin="0,0,0,15">
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Grid Grid.Column="0" Margin="15,0">
+                                                    <ContentPresenter x:Name="ContentSite" VerticalAlignment="Center" HorizontalAlignment="Center" ContentSource="Header" Margin="0,10"/>
+                                                    <Border x:Name="Underline" Background="{StaticResource GreenAccentBrush}" Height="2" VerticalAlignment="Bottom" Visibility="Collapsed"/>
+                                                </Grid>
+                                                <Border Grid.Column="1" Width="1" Height="14" Background="#DDD" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                            </Grid>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter TargetName="Underline" Property="Visibility" Value="Visible"/>
+                                                    <Setter Property="Foreground" Value="{StaticResource GreenAccentBrush}"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                </Trigger>
+                                                <Trigger Property="IsSelected" Value="False">
+                                                    <Setter Property="Foreground" Value="Gray"/>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </TabControl.Resources>
 
-                        <UniformGrid Grid.Row="1" Columns="7" Margin="0,0,0,10">
-                            <TextBlock Text="Пн" Foreground="#999" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Вт" Foreground="#999" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Ср" Foreground="#999" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Чт" Foreground="#999" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Пт" Foreground="#999" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Сб" Foreground="#999" HorizontalAlignment="Center"/>
-                            <TextBlock Text="Вс" Foreground="#999" HorizontalAlignment="Center"/>
-                        </UniformGrid>
+                        <TabItem x:Name="TabInfo">
+                            <TabItem.Header>
+                                <TextBlock Text="Инфо и Бронирование" FontSize="14"/>
+                            </TabItem.Header>
+                            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="12" Padding="25">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid Grid.Row="0" Margin="0,0,0,20">
+                                        <TextBlock x:Name="TxtCalendarMonth" Text="Месяц Год" FontSize="16" FontWeight="Bold" HorizontalAlignment="Center"/>
+                                        <Button Content="‹" HorizontalAlignment="Left" Style="{StaticResource WindowControlButtonStyle}" Foreground="#555" FontSize="18" Click="PrevMonth_Click"/>
+                                        <Button Content="›" HorizontalAlignment="Right" Style="{StaticResource WindowControlButtonStyle}" Foreground="#555" FontSize="18" Click="NextMonth_Click"/>
+                                    </Grid>
+                                    <UniformGrid Grid.Row="1" Columns="7" Margin="0,0,0,10">
+                                        <TextBlock Text="Пн" Foreground="#999" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Вт" Foreground="#999" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Ср" Foreground="#999" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Чт" Foreground="#999" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Пт" Foreground="#999" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Сб" Foreground="#999" HorizontalAlignment="Center"/>
+                                        <TextBlock Text="Вс" Foreground="#999" HorizontalAlignment="Center"/>
+                                    </UniformGrid>
+                                    <UniformGrid x:Name="CalendarGrid" Grid.Row="2" Columns="7" VerticalAlignment="Top"/>
 
-                        <UniformGrid x:Name="CalendarGrid" Grid.Row="2" Columns="7" VerticalAlignment="Top"/>
+                                    <WrapPanel Grid.Row="3" Margin="0,20,0,15" HorizontalAlignment="Center">
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
+                                            <Ellipse Width="8" Height="8" Fill="#4F46E5" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Аренда" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
+                                            <Ellipse Width="8" Height="8" Fill="#EF4444" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Ремонт" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
+                                            <Ellipse Width="8" Height="8" Fill="#9C27B0" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Бронь" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
+                                            <Ellipse Width="8" Height="8" Fill="{StaticResource GreenAccentBrush}" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Выбор" FontSize="11" Foreground="Gray"/>
+                                        </StackPanel>
+                                    </WrapPanel>
 
-                        <WrapPanel Grid.Row="3" Margin="0,20,0,15">
-                            <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
-                                <Ellipse Width="8" Height="8" Fill="#4F46E5" Margin="0,0,5,0"/>
-                                <TextBlock Text="Аренда" FontSize="11" Foreground="Gray"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
-                                <Ellipse Width="8" Height="8" Fill="#EF4444" Margin="0,0,5,0"/>
-                                <TextBlock Text="Ремонт" FontSize="11" Foreground="Gray"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
-                                <Ellipse Width="8" Height="8" Fill="#9C27B0" Margin="0,0,5,0"/>
-                                <TextBlock Text="Бронь" FontSize="11" Foreground="Gray"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,15,5">
-                                <Ellipse Width="8" Height="8" Fill="{StaticResource GreenAccentBrush}" Margin="0,0,5,0"/>
-                                <TextBlock Text="Выбрано" FontSize="11" Foreground="Gray"/>
-                            </StackPanel>
-                        </WrapPanel>
+                                    <Border Grid.Row="4" Background="#F9FAFB" CornerRadius="10" Padding="15" Margin="0,0,0,20">
+                                        <Grid>
+                                            <StackPanel>
+                                                <TextBlock x:Name="TxtTotalDays" Text="ВЫБРАНО: 0 СУТ" FontSize="11" FontWeight="Bold" Foreground="#90A4AE"/>
+                                                <TextBlock x:Name="TxtDates" Text="Выберите даты" FontSize="12" Foreground="Gray" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                            <TextBlock x:Name="TxtTotalPrice" Text="0 BYN" FontSize="24" FontWeight="Bold" Foreground="{StaticResource GreenAccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                                        </Grid>
+                                    </Border>
+                                    <Button x:Name="BtnAction" Grid.Row="5" Content="Выберите даты" IsEnabled="False" Height="50" FontSize="16" FontWeight="SemiBold" Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" BorderThickness="0" Click="BtnAction_Click"/>
+                                </Grid>
+                            </Border>
+                        </TabItem>
 
-                        <Border Grid.Row="4" Background="#F9FAFB" CornerRadius="10" Padding="15" Margin="0,0,0,20">
-                            <Grid>
-                                <StackPanel>
-                                    <TextBlock x:Name="TxtTotalDays" Text="ВЫБРАНО: 0 СУТ" FontSize="11" FontWeight="Bold" Foreground="#90A4AE"/>
-                                    <TextBlock x:Name="TxtDates" Text="Выберите даты" FontSize="12" Foreground="Gray" Margin="0,2,0,0"/>
-                                </StackPanel>
-                                <TextBlock x:Name="TxtTotalPrice" Text="0 BYN" FontSize="24" FontWeight="Bold" 
-                                           Foreground="{StaticResource GreenAccentBrush}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
-                            </Grid>
-                        </Border>
+                        <TabItem x:Name="TabMaintenance">
+                            <TabItem.Header>
+                                <Grid>
+                                    <TextBlock Text="ТО и Ремонт" FontSize="14" Margin="0,0,5,0"/>
+                                    <Ellipse Width="6" Height="6" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,-2,-6,0" Fill="{Binding MaintenanceIndicatorColor}"/>
+                                </Grid>
+                            </TabItem.Header>
 
-                        <Button x:Name="BtnAction" Grid.Row="5" Content="Выберите даты" IsEnabled="False"
-                                Height="50" FontSize="16" FontWeight="SemiBold"
-                                Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" BorderThickness="0"
-                                Click="BtnAction_Click"/>
-                    </Grid>
-                </Border>
+                            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="12" Padding="20">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,15">
+                                        <TextBlock x:Name="BtnAddMaint" Text="+ Добавить запись" Foreground="{StaticResource GreenAccentBrush}" Cursor="Hand" TextDecorations="Underline" MouseLeftButtonUp="AddMaintenance_Click"/>
+                                    </StackPanel>
+
+                                    <DataGrid x:Name="MaintenanceGrid" Grid.Row="1" 
+                                              Style="{StaticResource ModernDataGrid}" 
+                                              CanUserSortColumns="True"
+                                              MouseDoubleClick="MaintenanceGrid_MouseDoubleClick">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Период" Binding="{Binding Period}" Width="160"/>
+                                            <DataGridTextColumn Header="Тип" Binding="{Binding ServiceType}" Width="120" FontWeight="Bold"/>
+                                            <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*" ElementStyle="{StaticResource WrapTextCell}"/>
+                                            <DataGridTextColumn Header="Цена" Binding="{Binding Cost, StringFormat={}{0:N2} BYN}" Width="90"/>
+                                            <DataGridTextColumn Header="Мастер" Binding="{Binding MechanicFullName}" Width="180" ElementStyle="{StaticResource WrapTextCell}"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+                        </TabItem>
+
+                        <TabItem x:Name="TabInsurance">
+                            <TabItem.Header>
+                                <Grid>
+                                    <TextBlock Text="Страховка" FontSize="14" Margin="0,0,5,0"/>
+                                    <Ellipse Width="6" Height="6" VerticalAlignment="Top" HorizontalAlignment="Right" Margin="0,-2,-6,0" Fill="{Binding InsuranceIndicatorColor}"/>
+                                </Grid>
+                            </TabItem.Header>
+
+                            <Border Background="White" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="12" Padding="20">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,15">
+                                        <TextBlock x:Name="BtnAddInsurance" Text="+ Добавить полис" Foreground="{StaticResource GreenAccentBrush}" Cursor="Hand" TextDecorations="Underline" MouseLeftButtonUp="AddInsurance_Click"/>
+                                    </StackPanel>
+
+                                    <DataGrid x:Name="InsuranceGrid" Grid.Row="1" 
+                                              Style="{StaticResource ModernDataGrid}" 
+                                              CanUserSortColumns="True"
+                                              MouseDoubleClick="InsuranceGrid_MouseDoubleClick">
+                                        <DataGrid.Columns>
+                                            <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="90" FontWeight="Bold"/>
+                                            <DataGridTextColumn Header="Полис №" Binding="{Binding PolicyNumber}" Width="140"/>
+                                            <DataGridTextColumn Header="Тип" Binding="{Binding Type}" Width="80"/>
+                                            <DataGridTextColumn Header="Начало" Binding="{Binding StartDate, StringFormat=d}" Width="100"/>
+                                            <DataGridTextColumn Header="Окончание" Binding="{Binding EndDate, StringFormat=d}" Width="100"/>
+                                            <DataGridTextColumn Header="Цена" Binding="{Binding Cost, StringFormat={}{0:N2} BYN}" Width="*"/>
+                                        </DataGrid.Columns>
+                                    </DataGrid>
+                                </Grid>
+                            </Border>
+                        </TabItem>
+
+                    </TabControl>
+                </Grid>
             </Grid>
         </Grid>
     </Border>

@@ -15,6 +15,10 @@ namespace CarRental.UI.Views.Windows
     {
         private readonly Car _car;
         private readonly CarService _service = new();
+        private readonly MaintenanceService _maintService = new();
+        private readonly InsuranceService _insService = new();
+
+        private string _userRole;
 
         private DateTime _currentMonth;
         private DateTime? _selectedStart;
@@ -23,12 +27,16 @@ namespace CarRental.UI.Views.Windows
         // Список событий календаря (из БД)
         private List<CalendarItem> _schedule = new();
 
+
         // Конструктор теперь принимает опциональные даты (из фильтра)
         public CarDetailsWindow(Car car, DateTime? filterStart = null, DateTime? filterEnd = null)
         {
             InitializeComponent();
             _car = car;
 
+            DataContext = _car;
+
+            _userRole = AuthService.CurrentUser?.RoleName ?? "Гость";
             // Если есть фильтр - начинаем с месяца фильтра, иначе с текущего
             _currentMonth = filterStart ?? DateTime.Today;
 
@@ -39,10 +47,41 @@ namespace CarRental.UI.Views.Windows
                 _selectedEnd = filterEnd; // Если End null, будет выбран 1 день
             }
 
+            SetupAccessControl();
             LoadCarInfo();
-            LoadSchedule(); // Загрузка реальных данных
-            DrawCalendar();
-            UpdateCalculation();
+            if (TabInfo.Visibility == Visibility.Visible)
+            {
+                LoadSchedule();
+                DrawCalendar();
+                UpdateCalculation();
+            }
+
+            LoadMaintenanceHistory();
+            LoadInsurance();
+        }
+
+        private void SetupAccessControl()
+        {
+            // 1. Механик: Видит ТОЛЬКО вкладку ТО
+            if (_userRole == "Механик")
+            {
+                TabInfo.Visibility = Visibility.Collapsed;      // Скрыть календарь
+                TabInsurance.Visibility = Visibility.Collapsed; // Скрыть страховку
+
+                // Переключаем на вкладку ТО
+                TabMaintenance.IsSelected = true;
+            }
+
+            // 2. Кнопки "Добавить/Редактировать"
+            // Менеджер НЕ может редактировать ТО и Страховки
+            bool canEdit = _userRole == "Администратор" || _userRole == "Механик";
+            bool isAdmin = _userRole == "Администратор";
+
+            // Кнопка "+ Добавить запись ТО"
+            BtnAddMaint.Visibility = canEdit ? Visibility.Visible : Visibility.Collapsed;
+
+            // Кнопка "+ Добавить полис" (Только Админ)
+            BtnAddInsurance.Visibility = isAdmin ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void LoadCarInfo()
@@ -252,6 +291,30 @@ namespace CarRental.UI.Views.Windows
             }
         }
 
+        private void LoadMaintenanceHistory()
+        {
+            try
+            {
+                MaintenanceGrid.ItemsSource = _maintService.GetHistoryByCarId(_car.Id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки истории ТО: " + ex.Message);
+            }
+        }
+
+        private void LoadInsurance()
+        {
+            try
+            {
+                InsuranceGrid.ItemsSource = _insService.GetHistory(_car.Id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки страховок: " + ex.Message);
+            }
+        }
+
         // Проверка: Дата попадает в наш выбор?
         private bool IsDateSelected(DateTime date)
         {
@@ -299,5 +362,39 @@ namespace CarRental.UI.Views.Windows
         private void BtnAction_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Переход к оформлению..."); }
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
         private void Window_MouseDown(object sender, MouseButtonEventArgs e) { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); }
+
+        private void AddMaintenance_Click(object sender, MouseButtonEventArgs e)
+        {
+            InfoDialog.Show("Здесь откроется окно добавления ТО.", "В разработке");
+        }
+
+        // Двойной клик по таблице ТО (Редактирование)
+        private void MaintenanceGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            // Проверка прав
+            if (_userRole == "Менеджер") return;
+
+            if (MaintenanceGrid.SelectedItem is Maintenance selectedMaint)
+            {
+                InfoDialog.Show($"Редактирование записи ТО от {selectedMaint.DateStart:d}", "В разработке");
+            }
+        }
+
+        // Клик по "+ Добавить полис"
+        private void AddInsurance_Click(object sender, MouseButtonEventArgs e)
+        {
+            InfoDialog.Show("Здесь откроется окно добавления страховки.", "В разработке");
+        }
+
+        // Двойной клик по таблице Страховок
+        private void InsuranceGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (_userRole != "Администратор") return;
+
+            if (InsuranceGrid.SelectedItem is Insurance selectedIns)
+            {
+                InfoDialog.Show($"Редактирование полиса №{selectedIns.PolicyNumber}", "В разработке");
+            }
+        }
     }
 }

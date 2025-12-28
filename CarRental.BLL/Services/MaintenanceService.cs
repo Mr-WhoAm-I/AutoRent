@@ -22,6 +22,11 @@ namespace CarRental.BLL.Services
             return _repo.GetAllHistory();
         }
 
+        public List<Maintenance> GetHistoryByCarId(int carId)
+        {
+            return _repo.GetHistoryByCarId(carId);
+        }
+
         public void SendCarToService(int carId, int mechanicId, string type, string description)
         {
             var maintenance = new Maintenance

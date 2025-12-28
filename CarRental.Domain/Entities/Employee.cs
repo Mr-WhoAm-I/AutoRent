@@ -11,6 +11,8 @@
         public string Password { get; set; } = string.Empty;
 
         public string RoleName { get; set; } = string.Empty;
+        public string Position { get; set; } = string.Empty;
+        public bool IsArchived { get; set; }
 
         public string FullName => $"{Surname} {Name} ({RoleName})";
     }

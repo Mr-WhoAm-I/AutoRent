@@ -19,15 +19,21 @@ namespace CarRental.DAL.Repositories
             return GetMaintenances("ORDER BY o.ДатаНачала DESC");
         }
 
+        public List<Maintenance> GetHistoryByCarId(int carId)
+        {
+            return GetMaintenances($"WHERE o.IDАвтомобиля = {carId} ORDER BY o.ДатаНачала DESC");
+        }
+
         // Вспомогательный метод, чтобы не дублировать код чтения
         private List<Maintenance> GetMaintenances(string whereClause = "")
         {
             var list = new List<Maintenance>();
+            // Добавили s.Должность в SELECT
             string sql = $@"
                 SELECT o.ID, o.IDАвтомобиля, o.IDСотрудника,
                        o.ТипОбслуживания, o.Описание, o.ДатаНачала, o.ДатаОкончания, o.Стоимость,
                        a.Модель, m.Название as Марка, a.ГосНомер,
-                       s.Фамилия, s.Имя
+                       s.Фамилия, s.Имя, s.Должность
                   FROM Обслуживание o
                     INNER JOIN Автомобиль a ON o.IDАвтомобиля = a.ID
                     INNER JOIN Марка m ON a.IDМарки = m.ID
@@ -53,7 +59,10 @@ namespace CarRental.DAL.Repositories
 
                     CarName = $"{reader["Марка"]} {reader["Модель"]}",
                     PlateNumber = reader["ГосНомер"].ToString() ?? "",
-                    MechanicName = $"{reader["Фамилия"]} {reader["Имя"]}"
+                    MechanicName = $"{reader["Фамилия"]} {reader["Имя"]}",
+
+                    // Читаем новое поле
+                    MechanicPosition = reader["Должность"].ToString() ?? ""
                 });
             }
             return list;

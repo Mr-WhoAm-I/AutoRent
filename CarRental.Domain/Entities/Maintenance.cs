@@ -17,5 +17,24 @@
         public string CarName { get; set; } = string.Empty; // Марка + Модель
         public string PlateNumber { get; set; } = string.Empty;
         public string MechanicName { get; set; } = string.Empty; // Фамилия механика
+        public string MechanicPosition { get; set; } = string.Empty;
+
+        // Свойство для удобного вывода в гриде: "Иванов И.И. (Главный механик)"
+        public string MechanicFullName => $"{MechanicName} ({MechanicPosition})";
+
+        public string Period
+        {
+            get
+            {
+                string start = DateStart.ToString("d");
+                if (DateEnd.HasValue)
+                    return $"{start} — {DateEnd.Value:d}";
+
+                return $"{start} (В процессе)";
+            }
+        }
+
+        // 2. Флаг: Это событие в будущем?
+        public bool IsFuture => DateStart.Date > DateTime.Now.Date;
     }
 }
