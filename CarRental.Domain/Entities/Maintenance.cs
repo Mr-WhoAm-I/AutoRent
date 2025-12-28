@@ -17,20 +17,28 @@
         public string CarName { get; set; } = string.Empty; // Марка + Модель
         public string PlateNumber { get; set; } = string.Empty;
         public string MechanicName { get; set; } = string.Empty; // Фамилия механика
+        public bool IsArchived { get; set; }
         public string MechanicPosition { get; set; } = string.Empty;
 
         // Свойство для удобного вывода в гриде: "Иванов И.И. (Главный механик)"
-        public string MechanicFullName => $"{MechanicName} ({MechanicPosition})";
+        public string MechanicFullName => $"{MechanicName}\n({MechanicPosition})";
 
         public string Period
         {
             get
             {
-                string start = DateStart.ToString("d");
-                if (DateEnd.HasValue)
-                    return $"{start} — {DateEnd.Value:d}";
+                string start = DateStart.ToString("dd.MM.yyyy");
 
-                return $"{start} (В процессе)";
+                // 1. Если событие в будущем (еще не наступило)
+                if (DateStart.Date > DateTime.Now.Date)
+                    return $"{start}\n—";
+
+                // 2. Если завершено (есть дата конца)
+                if (DateEnd.HasValue)
+                    return $"{start}\n{DateEnd.Value:dd.MM.yyyy}";
+
+                // 3. Если началось, но не закончилось
+                return $"{start}\n(В процессе)";
             }
         }
 

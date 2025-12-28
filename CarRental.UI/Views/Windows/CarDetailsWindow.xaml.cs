@@ -363,37 +363,98 @@ namespace CarRental.UI.Views.Windows
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
         private void Window_MouseDown(object sender, MouseButtonEventArgs e) { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); }
 
+        // 1. Добавить ТО
         private void AddMaintenance_Click(object sender, MouseButtonEventArgs e)
         {
-            InfoDialog.Show("Здесь откроется окно добавления ТО.", "В разработке");
+            var win = new MaintenanceWindow(_car.Id);
+            win.ShowDialog();
+            if (win.IsSuccess) LoadMaintenanceHistory();
         }
 
-        // Двойной клик по таблице ТО (Редактирование)
+        // 2. Редактировать ТО
         private void MaintenanceGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            // Проверка прав
             if (_userRole == "Менеджер") return;
 
             if (MaintenanceGrid.SelectedItem is Maintenance selectedMaint)
             {
-                InfoDialog.Show($"Редактирование записи ТО от {selectedMaint.DateStart:d}", "В разработке");
+                var win = new MaintenanceWindow(_car.Id, selectedMaint);
+                win.ShowDialog();
+                if (win.IsSuccess) LoadMaintenanceHistory();
             }
         }
 
-        // Клик по "+ Добавить полис"
+        // 3. Добавить Страховку
         private void AddInsurance_Click(object sender, MouseButtonEventArgs e)
         {
-            InfoDialog.Show("Здесь откроется окно добавления страховки.", "В разработке");
+            var win = new InsuranceWindow(_car.Id);
+            win.ShowDialog();
+            if (win.IsSuccess) LoadInsurance();
         }
 
-        // Двойной клик по таблице Страховок
+        // 4. Редактировать Страховку
         private void InsuranceGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (_userRole != "Администратор") return;
 
             if (InsuranceGrid.SelectedItem is Insurance selectedIns)
             {
-                InfoDialog.Show($"Редактирование полиса №{selectedIns.PolicyNumber}", "В разработке");
+                var win = new InsuranceWindow(_car.Id, selectedIns);
+                win.ShowDialog();
+                if (win.IsSuccess) LoadInsurance();
+            }
+        }
+
+        // Удаление ТО
+        private void DeleteMaintenance_Click(object sender, RoutedEventArgs e)
+        {
+            // Проверка прав (Менеджер не может удалять)
+            if (_userRole == "Менеджер")
+            {
+                InfoDialog.Show("У вас нет прав на удаление записей.", "Доступ запрещен", true);
+                return;
+            }
+
+            if (MaintenanceGrid.SelectedItem is Maintenance item)
+            {
+                if (MessageBox.Show("Вы уверены, что хотите удалить эту запись?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _maintService.Delete(item.Id);
+                        LoadMaintenanceHistory(); // Обновляем таблицу
+                    }
+                    catch (Exception ex)
+                    {
+                        InfoDialog.Show(ex.Message, "Ошибка", true);
+                    }
+                }
+            }
+        }
+
+        // Удаление Страховки
+        private void DeleteInsurance_Click(object sender, RoutedEventArgs e)
+        {
+            if (_userRole != "Администратор")
+            {
+                InfoDialog.Show("Только администратор может удалять полисы.", "Доступ запрещен", true);
+                return;
+            }
+
+            if (InsuranceGrid.SelectedItem is Insurance item)
+            {
+                if (MessageBox.Show("Вы уверены, что хотите удалить этот полис?", "Подтверждение", MessageBoxButton.YesNo, MessageBoxImage.Warning) == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        _insService.Delete(item.Id);
+                        LoadInsurance(); // Обновляем таблицу
+                    }
+                    catch (Exception ex)
+                    {
+                        InfoDialog.Show(ex.Message, "Ошибка", true);
+                    }
+                }
             }
         }
     }

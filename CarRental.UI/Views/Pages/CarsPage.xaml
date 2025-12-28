@@ -293,6 +293,12 @@
 
             <hc:ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto" IsInertiaEnabled="True">
                 <Grid>
+                    <TextBlock x:Name="EmptyStateText" 
+                               Text="По вашему запросу автомобилей не найдено." 
+                               FontSize="18" Foreground="#999" 
+                               HorizontalAlignment="Center" VerticalAlignment="Top" 
+                               Margin="0,100,0,0" Visibility="Collapsed"/>
+                    
                     <ItemsControl x:Name="CarsGridControl" Visibility="Visible">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>

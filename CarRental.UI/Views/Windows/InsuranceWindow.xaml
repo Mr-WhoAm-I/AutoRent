@@ -1,0 +1,54 @@
+﻿<Window x:Class="CarRental.UI.Views.Windows.InsuranceWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
+        Title="Страховка" Height="450" Width="450"
+        WindowStartupLocation="CenterScreen" ResizeMode="NoResize"
+        WindowStyle="None" AllowsTransparency="True" Background="Transparent"
+        MouseDown="Window_MouseDown" FontFamily="Segoe UI">
+
+    <Border Background="White" CornerRadius="15" BorderBrush="#E0E0E0" BorderThickness="1" Margin="10">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="5" Opacity="0.3"/>
+        </Border.Effect>
+
+        <Grid Margin="25">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock x:Name="TxtTitle" Text="Новый полис" FontSize="22" FontWeight="Bold" Foreground="#333"/>
+                <Button Content="✕" HorizontalAlignment="Right" VerticalAlignment="Top"
+                        Style="{StaticResource WindowControlButtonStyle}" Foreground="#999" Click="Close_Click"/>
+            </Grid>
+
+            <StackPanel Grid.Row="1">
+                <TextBox x:Name="TxtPolicy" Style="{StaticResource FloatingHintTextBox}" Tag="Номер полиса"/>
+
+                <TextBox x:Name="TxtType" Style="{StaticResource FloatingHintTextBox}" Tag="Тип (ОСАГО/КАСКО/Зеленая карта)" Margin="0,15,0,0"/>
+
+                <Grid Margin="0,15,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="15"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <hc:DatePicker x:Name="DateStart" hc:InfoElement.Placeholder="Действует с" Height="50" BorderThickness="1" BorderBrush="#C0C0C0"/>
+                    <hc:DatePicker x:Name="DateEnd" Grid.Column="2" hc:InfoElement.Placeholder="Действует по" Height="50" BorderThickness="1" BorderBrush="#C0C0C0"/>
+                </Grid>
+
+                <TextBox x:Name="TxtCost" Style="{StaticResource FloatingHintTextBox}" Tag="Стоимость (BYN)" 
+                         PreviewTextInput="NumberValidation" Margin="0,15,0,0"/>
+            </StackPanel>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
+                <Button Content="Отмена" Style="{StaticResource ButtonDashed}" Width="100" Height="40" Margin="0,0,10,0" Click="Close_Click"/>
+                <Button Content="Сохранить" Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" 
+                        BorderThickness="0" Width="120" Height="40" Click="Save_Click"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</Window>

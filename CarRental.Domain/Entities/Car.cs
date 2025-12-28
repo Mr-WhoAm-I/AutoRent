@@ -56,7 +56,7 @@
         {
             get
             {
-                if (InsuranceExpiryDate == null) return "#CCC"; // Нет страховки
+                if (InsuranceExpiryDate == null) return "#F44336";
                 var days = (InsuranceExpiryDate.Value - DateTime.Now).TotalDays;
                 if (days < 7) return "#F44336"; // Красный (< недели)
                 if (days < 30) return "#FF9800"; // Оранжевый (< месяца)

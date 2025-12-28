@@ -82,6 +82,7 @@
                         <RadioButton x:Name="BtnReports" Content="📑  Отчеты" Tag="ReportsPage" Click="MenuButton_Click" Visibility="Collapsed"/>
                         <RadioButton x:Name="BtnDirectories" Content="📚  Справочники" Tag="DirectoriesPage" Click="MenuButton_Click" Visibility="Collapsed"/>
                         <RadioButton x:Name="BtnEmployees" Content="🔧  Сотрудники" Tag="EmployeesPage" Click="MenuButton_Click" Visibility="Collapsed"/>
+                        <RadioButton x:Name="BtnArchive" Content="🗄  Архив" Tag="ArchivePage" Click="MenuButton_Click" Visibility="Collapsed"/>
                         <RadioButton x:Name="BtnLogs" Content="📜  Журнал событий" Tag="SystemLogsPage" Click="MenuButton_Click" Visibility="Collapsed"/>
                     </StackPanel>
 

@@ -448,6 +448,7 @@
                 <Setter Property="BorderThickness" Value="1"/>
                 <Setter Property="FontSize" Value="14"/>
                 <Setter Property="Padding" Value="12,0"/>
+                <Setter Property="Foreground" Value="Black"/>
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="ComboBox">
@@ -471,6 +472,14 @@
                                                           VerticalAlignment="Center" 
                                                           IsHitTestVisible="False"/>
 
+                                        <TextBox x:Name="PART_EditableTextBox" 
+                                                 Style="{x:Null}" 
+                                                 HorizontalAlignment="Stretch" VerticalAlignment="Center" 
+                                                 Margin="10,0,0,0"
+                                                 BorderThickness="0" Background="Transparent"
+                                                 Focusable="True" Visibility="Collapsed"
+                                                 Foreground="Black"/>
+
                                         <Path Grid.Column="1" Data="M0 0L5 5L10 0" Stroke="#666" StrokeThickness="1.5" 
                                               HorizontalAlignment="Center" VerticalAlignment="Center" 
                                               IsHitTestVisible="False"/>
@@ -478,7 +487,7 @@
                                 </Border>
 
                                 <TextBlock x:Name="Hint" Text="{TemplateBinding Tag}" 
-                                           Foreground="{StaticResource GreenAccentBrush}" 
+                                           Foreground="#999" 
                                            VerticalAlignment="Top" 
                                            HorizontalAlignment="Left"
                                            Margin="10,-9,0,0"
@@ -487,7 +496,8 @@
                                            Padding="4,0"
                                            IsHitTestVisible="False"/>
 
-                                <ToggleButton IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                <ToggleButton x:Name="ToggleButton" 
+                                              IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                               Opacity="0" Background="Transparent" BorderThickness="0"
                                               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
@@ -507,10 +517,17 @@
                             </Grid>
 
                             <ControlTemplate.Triggers>
+                                <Trigger Property="IsEditable" Value="True">
+                                    <Setter TargetName="ContentPresenter" Property="Visibility" Value="Collapsed"/>
+                                    <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible"/>
+                                    <Setter TargetName="ToggleButton" Property="IsHitTestVisible" Value="False"/>
+                                </Trigger>
+
                                 <MultiTrigger>
                                     <MultiTrigger.Conditions>
+                                        <Condition Property="Text" Value=""/>
                                         <Condition Property="SelectedIndex" Value="-1"/>
-                                        <Condition Property="IsDropDownOpen" Value="False"/>
+                                        <Condition Property="IsKeyboardFocusWithin" Value="False"/>
                                     </MultiTrigger.Conditions>
                                     <Setter TargetName="Hint" Property="VerticalAlignment" Value="Center"/>
                                     <Setter TargetName="Hint" Property="Margin" Value="14,0,0,0"/>
@@ -523,19 +540,24 @@
                                 <Trigger Property="IsDropDownOpen" Value="True">
                                     <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource GreenAccentBrush}"/>
                                     <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                                    <Setter TargetName="Hint" Property="Foreground" Value="{StaticResource GreenAccentBrush}"/>
                                 </Trigger>
-
-                                <MultiTrigger>
-                                    <MultiTrigger.Conditions>
-                                        <Condition Property="IsDropDownOpen" Value="False"/>
-                                    </MultiTrigger.Conditions>
-                                    <Setter TargetName="Hint" Property="Foreground" Value="#999"/>
-                                </MultiTrigger>
+                                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource GreenAccentBrush}"/>
+                                    <Setter TargetName="border" Property="BorderThickness" Value="2"/>
+                                    <Setter TargetName="Hint" Property="VerticalAlignment" Value="Top"/>
+                                    <Setter TargetName="Hint" Property="Margin" Value="10,-9,0,0"/>
+                                    <Setter TargetName="Hint" Property="FontSize" Value="12"/>
+                                    <Setter TargetName="Hint" Property="Background" Value="White"/>
+                                    <Setter TargetName="Hint" Property="Padding" Value="4,0"/>
+                                    <Setter TargetName="Hint" Property="Foreground" Value="{StaticResource GreenAccentBrush}"/>
+                                </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
             </Style>
+
             <Style x:Key="ModernDataGrid" TargetType="DataGrid">
                 <Setter Property="Background" Value="White"/>
                 <Setter Property="BorderThickness" Value="0"/>
@@ -555,7 +577,7 @@
                             <Setter Property="Background" Value="Transparent"/>
                             <Setter Property="Foreground" Value="#90A4AE"/>
                             <Setter Property="FontWeight" Value="SemiBold"/>
-                            <Setter Property="Padding" Value="10,0"/>
+                            <Setter Property="Padding" Value="5,0"/>
                             <Setter Property="Height" Value="40"/>
                             <Setter Property="BorderThickness" Value="0,0,0,1"/>
                             <Setter Property="BorderBrush" Value="#EEEEEE"/>
@@ -567,25 +589,19 @@
                                                     Background="{TemplateBinding Background}"
                                                     BorderBrush="{TemplateBinding BorderBrush}"
                                                     BorderThickness="{TemplateBinding BorderThickness}">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                    <ContentPresenter RecognizesAccessKey="True"
+                                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"
+                                                                      VerticalAlignment="Center"/>
 
-                                                    <ContentPresenter HorizontalAlignment="Left" 
-                                                      VerticalAlignment="Center" 
-                                                      RecognizesAccessKey="True"
-                                                      SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-
-                                                    <Path x:Name="SortArrow" Grid.Column="1"
-                                          Data="M0,0 L10,0 L5,5 z"
-                                          Fill="{StaticResource GreenAccentBrush}"
-                                          Margin="5,0,0,0"
-                                          VerticalAlignment="Center"
-                                          Visibility="Collapsed"
-                                          Stretch="Fill" Width="8" Height="6"/>
-                                                </Grid>
+                                                    <Path x:Name="SortArrow"
+                                                          Data="M0,0 L10,0 L5,5 z"
+                                                          Fill="{StaticResource GreenAccentBrush}"
+                                                          Margin="6,0,0,0" 
+                                                          VerticalAlignment="Center"
+                                                          Visibility="Collapsed"
+                                                          Stretch="Fill" Width="8" Height="6"/>
+                                                </StackPanel>
                                             </Border>
                                         </Grid>
 
@@ -613,7 +629,7 @@
                 <Setter Property="CellStyle">
                     <Setter.Value>
                         <Style TargetType="DataGridCell">
-                            <Setter Property="Padding" Value="10,5"/>
+                            <Setter Property="Padding" Value="4,4"/>
                             <Setter Property="Template">
                                 <Setter.Value>
                                     <ControlTemplate TargetType="DataGridCell">

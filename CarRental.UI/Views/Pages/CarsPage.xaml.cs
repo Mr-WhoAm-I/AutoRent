@@ -191,8 +191,21 @@ namespace CarRental.UI.Views.Pages
 
             // 6. ФИНАЛ
             var resultList = query.ToList();
-            CarsGridControl.ItemsSource = resultList;
-            CarsListControl.ItemsSource = resultList;
+            if (resultList.Count == 0)
+            {
+                EmptyStateText.Visibility = Visibility.Visible;
+                CarsGridControl.Visibility = Visibility.Collapsed;
+                CarsListControl.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                EmptyStateText.Visibility = Visibility.Collapsed;
+                // Восстанавливаем видимость в зависимости от режима (Плитка/Список)
+                ViewType_Changed(null, null);
+
+                CarsGridControl.ItemsSource = resultList;
+                CarsListControl.ItemsSource = resultList;
+            }
         }
 
         private void ViewType_Changed(object sender, RoutedEventArgs e)

@@ -17,5 +17,13 @@ namespace CarRental.BLL.Services
         {
             return _repo.GetByCarId(carId);
         }
+
+        public void Save(Insurance ins)
+        {
+            if (ins.Id == 0) _repo.Add(ins);
+            else _repo.Update(ins);
+        }
+
+        public void Delete(int id) => _repo.Delete(id);
     }
 }

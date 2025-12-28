@@ -21,7 +21,22 @@ namespace CarRental.DAL.Repositories
 
         public List<Maintenance> GetHistoryByCarId(int carId)
         {
-            return GetMaintenances($"WHERE o.IDАвтомобиля = {carId} ORDER BY o.ДатаНачала DESC");
+            return GetMaintenances($"WHERE o.IDАвтомобиля = {carId} AND o.ВАрхиве = 0 ORDER BY o.ДатаНачала DESC");
+        }
+
+        public void Delete(int id)
+        {
+            string sql = @"
+                UPDATE Обслуживание 
+                SET ВАрхиве = 1, 
+                    ДатаОкончания = ISNULL(ДатаОкончания, GETDATE()) 
+                WHERE ID = @Id";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
         }
 
         // Вспомогательный метод, чтобы не дублировать код чтения
@@ -66,6 +81,31 @@ namespace CarRental.DAL.Repositories
                 });
             }
             return list;
+        }
+
+        public void Update(Maintenance m)
+        {
+            string sql = @"
+                UPDATE Обслуживание
+                SET IDСотрудника = @EmpId,
+                    ТипОбслуживания = @Type,
+                    Описание = @Desc,
+                    ДатаНачала = @Start,
+                    ДатаОкончания = @End,
+                    Стоимость = @Cost
+                WHERE ID = @Id";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", m.Id);
+            cmd.Parameters.AddWithValue("@EmpId", m.EmployeeId);
+            cmd.Parameters.AddWithValue("@Type", m.ServiceType);
+            cmd.Parameters.AddWithValue("@Desc", m.Description ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Start", m.DateStart);
+            cmd.Parameters.AddWithValue("@End", m.DateEnd ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@Cost", m.Cost ?? (object)DBNull.Value);
+            cmd.ExecuteNonQuery();
         }
 
         // 3. Добавить запись о ремонте (Отправить в сервис)
@@ -153,9 +193,12 @@ namespace CarRental.DAL.Repositories
         {
             var list = new List<CalendarItem>();
             string sql = @"
-                SELECT ДатаНачала, ISNULL(ДатаОкончания, DATEADD(day, 1, ДатаНачала)) as Конец, ТипОбслуживания
+                SELECT ДатаНачала, 
+                       ISNULL(ДатаОкончания, DATEADD(year, 100, GETDATE())) as Конец, 
+                       ТипОбслуживания
                 FROM Обслуживание
-                WHERE IDАвтомобиля = @CarId";
+                WHERE IDАвтомобиля = @CarId 
+                  AND ВАрхиве = 0";
 
             using var conn = GetConnection();
             conn.Open();

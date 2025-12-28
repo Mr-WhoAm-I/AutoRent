@@ -36,5 +36,37 @@ namespace CarRental.DAL.Repositories
             }
             return null; // Если пользователь не найден
         }
+
+        // Получить активных сотрудников по названию роли
+        public List<Employee> GetByRole(string roleName)
+        {
+            var list = new List<Employee>();
+            string sql = @"
+                SELECT s.ID, s.Фамилия, s.Имя, s.Логин, s.Должность, r.Название as Роль, s.IDРоли
+                FROM Сотрудник s
+                JOIN Роль r ON s.IDРоли = r.ID
+                WHERE r.Название = @RoleName AND s.ВАрхиве = 0
+                ORDER BY s.Фамилия";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@RoleName", roleName);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new Employee
+                {
+                    Id = (int)reader["ID"],
+                    Surname = reader["Фамилия"].ToString() ?? "",
+                    Name = reader["Имя"].ToString() ?? "",
+                    RoleName = reader["Роль"].ToString() ?? "",
+                    Position = reader["Должность"].ToString() ?? "",
+                    RoleId = (int)reader["IDРоли"]
+                });
+            }
+            return list;
+        }
     }
 }

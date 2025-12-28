@@ -27,6 +27,8 @@ namespace CarRental.BLL.Services
             return _repo.GetHistoryByCarId(carId);
         }
 
+        public void Delete(int id) => _repo.Delete(id);
+
         public void SendCarToService(int carId, int mechanicId, string type, string description)
         {
             var maintenance = new Maintenance
@@ -40,6 +42,11 @@ namespace CarRental.BLL.Services
             _repo.AddMaintenance(maintenance);
         }
 
+        public void Save(Maintenance m)
+        {
+            if (m.Id == 0) _repo.AddMaintenance(m);
+            else _repo.Update(m);
+        }
         public void FinishService(int maintenanceId, decimal cost)
         {
             if (cost < 0) throw new Exception("Стоимость не может быть отрицательной");

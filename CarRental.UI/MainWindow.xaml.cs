@@ -43,6 +43,7 @@ namespace CarRental.UI
                     BtnReports.Visibility = Visibility.Visible;
                     BtnDirectories.Visibility = Visibility.Visible;
                     BtnEmployees.Visibility = Visibility.Visible;
+                    BtnArchive.Visibility = Visibility.Visible;
                     BtnLogs.Visibility = Visibility.Visible;
 
                     // Доступ к операционке
@@ -112,6 +113,9 @@ namespace CarRental.UI
                         break;
                     case "DirectoriesPage":
                         MainFrame.Navigate(new DirectoriesPage());
+                        break;
+                    case "ArchivePage":
+                        MainFrame.Navigate(new ArchivePage());
                         break;
                 }
             }
