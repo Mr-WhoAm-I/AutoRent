@@ -24,7 +24,9 @@ namespace CarRental.DAL.Repositories
                     (SELECT MAX(ДатаОкончания) FROM Страховка WHERE IDАвтомобиля = a.ID) AS ДатаСтраховки,
                     
                     -- Подзапрос: Ближайшая будущая дата обслуживания
-                    (SELECT MIN(ДатаНачала) FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE)) AS ДатаТО
+                    (SELECT MIN(ДатаНачала) FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE)) AS ДатаТО,
+                    
+                    (SELECT TOP 1 ТипОбслуживания FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE) ORDER BY ДатаНачала) AS ТипТО
 
                 FROM Автомобиль a
                     INNER JOIN Марка m ON a.IDМарки = m.ID
@@ -67,7 +69,8 @@ namespace CarRental.DAL.Repositories
                         FuelName = reader["ТопливоНазвание"].ToString() ?? string.Empty,
                         BodyTypeName = reader["КузовНазвание"].ToString() ?? string.Empty,
                         InsuranceExpiryDate = reader["ДатаСтраховки"] as DateTime?,
-                        NextMaintenanceDate = reader["ДатаТО"] as DateTime?
+                        NextMaintenanceDate = reader["ДатаТО"] as DateTime?,
+                        NextMaintenanceType = reader["ТипТО"] as string
                     };
                     cars.Add(car);
                 }

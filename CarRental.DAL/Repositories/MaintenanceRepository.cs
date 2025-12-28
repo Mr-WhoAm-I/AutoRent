@@ -139,5 +139,58 @@ namespace CarRental.DAL.Repositories
                 throw;
             }
         }
+
+        public List<CalendarItem> GetCalendarItems(int carId)
+        {
+            var list = new List<CalendarItem>();
+            string sql = @"
+                SELECT ДатаНачала, ISNULL(ДатаОкончания, DATEADD(day, 1, ДатаНачала)) as Конец, ТипОбслуживания
+                FROM Обслуживание
+                WHERE IDАвтомобиля = @CarId";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@CarId", carId);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new CalendarItem
+                {
+                    Start = (DateTime)reader["ДатаНачала"],
+                    End = (DateTime)reader["Конец"],
+                    Type = "Maintenance",
+                    TooltipText = $"Обслуживание: {reader["ТипОбслуживания"]}"
+                });
+            }
+            return list;
+        }
+
+        // Добавляем метод поиска занятых машин (в ремонте)
+        public List<int> GetOccupiedCarIds(DateTime start, DateTime end)
+        {
+            var ids = new List<int>();
+            // Ремонт пересекается с фильтром
+            // (ДатаОкончания IS NULL означает, что ремонт еще идет -> считаем занятым)
+            string sql = @"
+                SELECT DISTINCT IDАвтомобиля 
+                FROM Обслуживание 
+                WHERE ДатаНачала <= @End 
+                  AND (ДатаОкончания IS NULL OR ДатаОкончания >= @Start)";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Start", start);
+            cmd.Parameters.AddWithValue("@End", end);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                ids.Add((int)reader["IDАвтомобиля"]);
+            }
+            return ids;
+        }
     }
 }

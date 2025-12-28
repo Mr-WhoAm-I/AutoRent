@@ -223,12 +223,18 @@ namespace CarRental.UI.Views.Pages
             }
         }
 
-        private void Car_Click(object sender, MouseButtonEventArgs e)
+        // Аргумент изменился на RoutedEventArgs (для Button.Click)
+        private void Car_Click(object sender, RoutedEventArgs e)
         {
             if ((sender as FrameworkElement)?.DataContext is Car selectedCar)
             {
-                // Пока просто MessageBox или открытие окна, если оно уже готово
-                MessageBox.Show($"Выбрана машина: {selectedCar.Model}");
+                // Берем даты из фильтра
+                DateTime? start = DateStartPicker.SelectedDate;
+                DateTime? end = DateEndPicker.SelectedDate;
+
+                // Открываем окно с этими датами
+                var detailsWin = new Views.Windows.CarDetailsWindow(selectedCar, start, end);
+                detailsWin.ShowDialog();
             }
         }
 

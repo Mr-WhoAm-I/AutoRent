@@ -8,41 +8,22 @@ namespace CarRental.BLL.Services
         private readonly CarRepository _carRepo = new();
         private readonly RentalRepository _rentalRepo = new();
         private readonly MaintenanceRepository _maintRepo = new();
-        // Repository страховок пока опустим для краткости, логика та же
+        private readonly BookingRepository _bookingRepo = new();
 
         public List<Car> GetCars() => _carRepo.GetAllCars();
 
-        // Метод для календаря: Получить занятые диапазоны
-        public List<DateRange> GetCarSchedule(int carId)
-        {
-            var schedule = new List<DateRange>();
-
-            // 1. Аренды (Синий цвет)
-            var rentals = _rentalRepo.GetByCarId(carId);
-            foreach (var r in rentals)
-            {
-                // Если машина возвращена, берем фактическую дату, иначе плановую
-                var end = r.ActualEndDate ?? r.PlannedEndDate;
-                schedule.Add(new DateRange
-                {
-                    Start = r.StartDate,
-                    End = end,
-                    Type = "Rental",
-                    ColorHex = "#4F46E5" // Индиго
-                });
-            }
-
-            // 2. Ремонты (Оранжевый цвет)
-            // Предполагаем, что метод GetByCarId есть в MaintenanceRepository
-            // var maints = _maintRepo.GetByCarId(carId); 
-            // ... аналогичное добавление с Type="Maintenance" и цветом Orange
-
-            return schedule;
-        }
 
         public List<int> GetOccupiedCarIds(DateTime start, DateTime end)
         {
-            return _rentalRepo.GetOccupiedCarIds(start, end);
+            var busyIds = new List<int>();
+
+            // Собираем ID из всех источников
+            busyIds.AddRange(_rentalRepo.GetOccupiedCarIds(start, end));
+            busyIds.AddRange(_bookingRepo.GetOccupiedCarIds(start, end)); // Бронь
+            busyIds.AddRange(_maintRepo.GetOccupiedCarIds(start, end));   // Ремонт
+
+            // Возвращаем уникальные ID
+            return busyIds.Distinct().ToList();
         }
 
         public void AddCar(Car car) => _carRepo.AddCar(car);
@@ -50,6 +31,22 @@ namespace CarRental.BLL.Services
         // Метод обновления (понадобится для редактирования)
         // (Убедись, что в CarRepository есть UpdateCar, если нет — пока оставь пустым или добавь позже)
         public void UpdateCar(Car car) => _carRepo.UpdateCar(car);
+
+        public List<CalendarItem> GetCarSchedule(int carId)
+        {
+            var schedule = new List<CalendarItem>();
+
+            // 1. Аренды
+            schedule.AddRange(_rentalRepo.GetCalendarItems(carId));
+
+            // 2. Ремонты
+            schedule.AddRange(_maintRepo.GetCalendarItems(carId));
+
+            // 3. Брони (если реализуете BookingRepository)
+            schedule.AddRange(_bookingRepo.GetCalendarItems(carId));
+
+            return schedule;
+        }
     }
 
     // Вспомогательный класс для календаря

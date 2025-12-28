@@ -56,5 +56,37 @@ namespace CarRental.DAL.Repositories
             }
             return ids;
         }
+
+        // Получить список аренд для календаря
+        public List<CalendarItem> GetCalendarItems(int carId)
+        {
+            var list = new List<CalendarItem>();
+            string sql = @"
+                SELECT a.ДатаНачала, 
+                       ISNULL(a.ДатаОкончанияФактическая, a.ДатаОкончанияПлановая) AS Конец,
+                       k.Фамилия, k.Имя
+                FROM Аренда a
+                JOIN Клиент k ON a.IDКлиента = k.ID
+                WHERE a.IDАвтомобиля = @CarId";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@CarId", carId);
+
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                string clientName = $"{reader["Фамилия"]} {reader["Имя"]}";
+                list.Add(new CalendarItem
+                {
+                    Start = (DateTime)reader["ДатаНачала"],
+                    End = (DateTime)reader["Конец"],
+                    Type = "Rental",
+                    TooltipText = $"В аренде у: {clientName}"
+                });
+            }
+            return list;
+        }
     }
 }

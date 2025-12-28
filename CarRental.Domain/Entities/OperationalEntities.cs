@@ -41,4 +41,12 @@
         public decimal Amount { get; set; }
         public string Type { get; set; } = string.Empty;
     }
+
+    public class CalendarItem
+    {
+        public DateTime Start { get; set; }
+        public DateTime End { get; set; }
+        public string Type { get; set; } = string.Empty; // "Rental", "Booking", "Maintenance"
+        public string TooltipText { get; set; } = string.Empty; // "В аренде у Иванов И.И."
+    }
 }

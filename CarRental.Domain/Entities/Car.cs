@@ -30,6 +30,7 @@
         public string DisplayName => $"{BrandName} {Model} ({Year})";
         public DateTime? InsuranceExpiryDate { get; set; }
         public DateTime? NextMaintenanceDate { get; set; }
+        public string? NextMaintenanceType { get; set; }
         public string BrandAndModel => $"{BrandName} {Model}";
         public string EditVisibility { get; set; } = "Collapsed";
         public string StatusColorHex
@@ -72,6 +73,30 @@
                 var days = (NextMaintenanceDate.Value - DateTime.Now).TotalDays;
                 if (days <= 7 && days >= 0) return "#FF9800"; // Скоро (< недели)
                 return "#CCC";
+            }
+        }
+
+        public string InsuranceTooltip
+        {
+            get
+            {
+                if (InsuranceExpiryDate == null) return "Страховка отсутствует";
+                var days = (InsuranceExpiryDate.Value - DateTime.Now.Date).TotalDays;
+
+                if (days < 0) return $"Страховка: ПРОСРОЧЕНА ({InsuranceExpiryDate:dd.MM.yyyy})";
+                if (days < 3) return $"Страховка: Осталось {Math.Ceiling(days)} дн.";
+                return $"Страховка действительна до {InsuranceExpiryDate:dd.MM.yyyy}";
+            }
+        }
+
+        // Логика текста подсказки ОБСЛУЖИВАНИЯ
+        public string MaintenanceTooltip
+        {
+            get
+            {
+                if (NextMaintenanceDate == null) return "Обслуживание не запланировано";
+                string type = NextMaintenanceType ?? "Плановое ТО";
+                return $"Обслуживание: {type}\nДата: {NextMaintenanceDate:dd.MM.yyyy}";
             }
         }
     }
