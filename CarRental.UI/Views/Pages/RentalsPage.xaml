@@ -1,11 +1,184 @@
 ﻿<Page x:Class="CarRental.UI.Views.Pages.RentalsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Аренды" FontFamily="Segoe UI">
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      Title="Аренды" FontFamily="Segoe UI" Loaded="Page_Loaded">
 
-    <Grid>
-        <TextBlock Text="Активные аренды" 
-                   FontSize="32" FontWeight="SemiBold" Foreground="#333"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.5"/>
+    <Grid Margin="0,0,10,0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock Text="Управление арендой" FontSize="26" FontWeight="Bold" Foreground="#333" Margin="0,0,0,20"/>
+
+        <Grid Grid.Row="1" Margin="0,0,0,15">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="350"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <hc:SearchBar x:Name="SearchBox" Height="40" FontSize="14"
+                          Style="{StaticResource SearchBarPlus}"
+                          hc:InfoElement.Placeholder="Поиск (Клиент, Авто, Договор)..."
+                          hc:InfoElement.ShowClearButton="True"
+                          TextChanged="Search_TextChanged"/>
+
+            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                <hc:DatePicker x:Name="DateStartPicker" Width="120" hc:InfoElement.Placeholder="С..." SelectedDateChanged="Filter_Changed"/>
+                <TextBlock Text="—" Margin="5,0" VerticalAlignment="Center" Foreground="Gray"/>
+                <hc:DatePicker x:Name="DateEndPicker" Width="120" hc:InfoElement.Placeholder="По..." SelectedDateChanged="Filter_Changed"/>
+            </StackPanel>
+
+            <Button Grid.Column="4" Content="+ Оформить аренду" 
+                    Style="{StaticResource ButtonPrimary}" Background="{StaticResource GreenGradientBrush}" 
+                    BorderThickness="0" Height="40" Padding="20,0"
+                    Click="Add_Click"/>
+        </Grid>
+
+        <TabControl Grid.Row="2" Style="{StaticResource TabControlInLine}" SelectedIndex="0">
+            <TabControl.Resources>
+                <Style x:Key="TabControlInLine" TargetType="TabControl">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="TabControl">
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+                                    <StackPanel Orientation="Horizontal" IsItemsHost="True" Margin="0,0,0,10" HorizontalAlignment="Left"/>
+                                    <ContentPresenter ContentSource="SelectedContent" Grid.Row="1"/>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+
+                <Style x:Key="CompactDataGrid" TargetType="DataGrid" BasedOn="{StaticResource ModernDataGrid}">
+                    <Setter Property="RowHeight" Value="50"/>
+                    <Setter Property="CellStyle">
+                        <Setter.Value>
+                            <Style TargetType="DataGridCell">
+                                <Setter Property="Padding" Value="2,0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="DataGridCell">
+                                            <Border Padding="{TemplateBinding Padding}" Background="Transparent">
+                                                <ContentPresenter VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsSelected" Value="True">
+                                        <Setter Property="Foreground" Value="{StaticResource GreenAccentBrush}"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.Resources>
+
+            <TabItem Header="Все аренды">
+                <DataGrid x:Name="RentalsGrid" 
+                          Style="{StaticResource CompactDataGrid}"
+                          CanUserSortColumns="True">
+
+                    <DataGrid.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Открыть аренду" Click="OpenDetails_Click"/>
+                            <MenuItem Header="Карточка клиента" Click="OpenClientContext_Click"/>
+                            <MenuItem Header="Карточка авто" Click="OpenCarContext_Click"/>
+                        </ContextMenu>
+                    </DataGrid.ContextMenu>
+
+                    <DataGrid.Columns>
+                        <DataGridTextColumn Header="Статус" Binding="{Binding Status}" FontWeight="Bold" Width="80"/>
+
+                        <DataGridTemplateColumn Header="Период" SortMemberPath="DateStart" Width="80">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DateStart, StringFormat=dd.MM.yyyy}" FontWeight="SemiBold" FontSize="13"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="по " Foreground="Gray" FontSize="10"/>
+                                            <TextBlock Text="{Binding DisplayEndDate, StringFormat=dd.MM.yyyy}" Foreground="Gray" FontSize="10"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Клиент" SortMemberPath="ClientFullName" Width="210">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="OpenClient_Click" Background="Transparent">
+                                        <TextBlock Text="{Binding ClientFullName}" FontWeight="Bold" Foreground="#4F46E5" TextTrimming="CharacterEllipsis"/>
+
+                                        <StackPanel Orientation="Horizontal">
+                                            <Path Data="{StaticResource UserIconGeom}" Fill="Gray" Height="9" Stretch="Uniform" Margin="0,1,4,0"/>
+                                            <TextBlock Text="{Binding ClientPhone}" Foreground="Gray" FontSize="11"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Автомобиль" SortMemberPath="CarName" Width="180">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center" Cursor="Hand" MouseLeftButtonUp="OpenCar_Click" Background="Transparent">
+                                        <TextBlock Text="{Binding CarName}" FontWeight="Bold" Foreground="#4F46E5" TextTrimming="CharacterEllipsis"/>
+
+                                        <Border Background="#F5F5F5" CornerRadius="3" Padding="4,0" HorizontalAlignment="Left" Margin="0,2,0,0">
+                                            <TextBlock Text="{Binding CarPlate}" Foreground="#555" FontSize="10" FontWeight="Bold"/>
+                                        </Border>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTemplateColumn Header="Сотрудник" SortMemberPath="EmployeeName" Width="130">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <StackPanel VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding EmployeeName}" TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock Text="{Binding EmployeePosition}" Foreground="Gray" FontSize="10"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                        <DataGridTextColumn Header="Сумма" Binding="{Binding TotalCost, StringFormat={}{0:N2} BYN}" Width="90" FontWeight="SemiBold"/>
+
+                        <DataGridTemplateColumn Header="Долг" Width="80" SortMemberPath="Debt">
+                            <DataGridTemplateColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Debt, StringFormat={}{0:N2}}" 
+                                               Foreground="{Binding DebtColor}" 
+                                               FontWeight="Bold" 
+                                               VerticalAlignment="Center"/>
+                                </DataTemplate>
+                            </DataGridTemplateColumn.CellTemplate>
+                        </DataGridTemplateColumn>
+
+                    </DataGrid.Columns>
+                </DataGrid>
+            </TabItem>
+
+            <TabItem Header="Бронирования">
+                <Grid>
+                    <TextBlock Text="Раздел бронирований в разработке..." 
+                               HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="#CCC" FontSize="16"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
     </Grid>
 </Page>

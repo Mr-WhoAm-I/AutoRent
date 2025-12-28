@@ -1,5 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
+﻿using CarRental.Domain.DTO;
 using CarRental.Domain.Entities;
+using Microsoft.Data.SqlClient;
 
 namespace CarRental.DAL.Repositories
 {
@@ -138,6 +139,50 @@ namespace CarRental.DAL.Repositories
                 };
 
                 list.Add(rental);
+            }
+            return list;
+        }
+
+        public List<RentalViewItem> GetRentalsView()
+        {
+            var list = new List<RentalViewItem>();
+
+            // ВАЖНО: Убедитесь, что представление в базе называется именно так
+            string sql = "SELECT * FROM Представление_Аренды ORDER BY ДатаНачала DESC";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new RentalViewItem
+                {
+                    Id = (int)reader["ID"],
+                    ClientId = (int)reader["IDКлиента"],
+                    CarId = (int)reader["IDАвтомобиля"],
+
+                    DateStart = (DateTime)reader["ДатаНачала"],
+                    DateEndPlanned = (DateTime)reader["ДатаОкончанияПлановая"],
+                    DateEndActual = reader["ДатаОкончанияФактическая"] as DateTime?,
+
+                    Status = reader["СтатусАренды"].ToString() ?? "",
+
+                    // Внимательно с именами колонок из VIEW:
+                    ClientFullName = reader["КлиентФИО"].ToString() ?? "",
+                    ClientPhone = reader["КлиентТелефон"].ToString() ?? "",
+
+                    CarName = reader["АвтоНазвание"].ToString() ?? "",
+                    CarPlate = reader["ГосНомер"].ToString() ?? "",
+                    CarPhoto = reader["АвтоФото"] as string,
+
+                    EmployeeName = reader["СотрудникФИО"].ToString() ?? "",
+                    EmployeePosition = reader["СотрудникДолжность"].ToString() ?? "",
+
+                    TotalCost = (decimal)reader["ИтогоНачислено"],
+                    Paid = (decimal)reader["Оплачено"],
+                    Debt = (decimal)reader["Долг"]
+                });
             }
             return list;
         }
