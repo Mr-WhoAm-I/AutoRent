@@ -1,26 +1,57 @@
 ﻿<Page x:Class="CarRental.UI.Views.Pages.SystemLogsPage"
       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-      Title="Журнал событий" FontFamily="Segoe UI">
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      Title="Журнал событий" FontFamily="Segoe UI" Loaded="Page_Loaded">
 
-    <Grid>
+    <Grid Margin="0,0,10,0">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
         <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-            <TextBlock Text="Журнал событий" FontSize="24" FontWeight="SemiBold" Foreground="#333"/>
-            <TextBlock Text="История действий пользователей" FontSize="14" Foreground="Gray" VerticalAlignment="Bottom" Margin="15,0,0,4"/>
+            <TextBlock Text="Журнал событий" FontSize="26" FontWeight="Bold" Foreground="#333"/>
+            <TextBlock Text="Аудит изменений данных" FontSize="14" Foreground="Gray" VerticalAlignment="Bottom" Margin="15,0,0,4"/>
         </StackPanel>
 
-        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="20">
-            <Border.Effect>
-                <DropShadowEffect Color="#E0E0E0" BlurRadius="10" ShadowDepth="2" Opacity="0.5"/>
-            </Border.Effect>
-            <TextBlock Text="Здесь будет таблица логов и кнопки бэкапа..." 
-                       HorizontalAlignment="Center" VerticalAlignment="Center" 
-                       Foreground="#CCC" FontSize="16"/>
+        <Border Grid.Row="1" Background="White" CornerRadius="10" Padding="15" Margin="0,0,0,20" BorderBrush="#EEE" BorderThickness="1">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="Выберите таблицу:" VerticalAlignment="Center" FontWeight="SemiBold" Margin="0,0,10,0"/>
+
+                <ComboBox x:Name="ComboTables" Width="200" Height="35" 
+                          Style="{StaticResource FloatingHintComboBox}" Tag="Таблица"
+                          SelectionChanged="ComboTables_SelectionChanged"/>
+
+                <Button Content="Обновить" Click="Refresh_Click" Margin="15,0,0,0"
+                        Style="{StaticResource ButtonDashed}" Height="35" Width="100"/>
+
+                <Button Content="Очистить журнал" Click="Clear_Click" Margin="15,0,0,0"
+                        Style="{StaticResource ButtonDashed}" BorderBrush="Red" Foreground="Red" 
+                        Height="35" Width="140" HorizontalAlignment="Right"/>
+            </StackPanel>
         </Border>
+
+        <DataGrid x:Name="LogsGrid" Grid.Row="2" 
+                  Style="{StaticResource ModernDataGrid}"
+                  AutoGenerateColumns="True"
+                  IsReadOnly="True"
+                  CanUserAddRows="False"
+                  AutoGeneratingColumn="LogsGrid_AutoGeneratingColumn">
+            <DataGrid.Columns>
+                <DataGridTemplateColumn Header="Действие">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button Content="Вернуть эту версию" 
+                                    Click="Restore_Click" 
+                                    FontSize="11" Padding="5,2"
+                                    Background="#FFF3E0" Foreground="#E65100" BorderThickness="0" Cursor="Hand"/>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+
+        </DataGrid>
     </Grid>
 </Page>
