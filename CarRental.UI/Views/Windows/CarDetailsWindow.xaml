@@ -295,7 +295,7 @@
                                                   CanUserSortColumns="True" MouseDoubleClick="InsuranceGrid_MouseDoubleClick">
                                             <DataGrid.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Header="Удалить запись" Click="DeleteMaintenance_Click" Foreground="Red"/>
+                                                    <MenuItem Header="Удалить запись" Click="DeleteInsurance_Click" Foreground="Red"/>
                                                 </ContextMenu>
                                             </DataGrid.ContextMenu>
                                             <DataGrid.Columns>

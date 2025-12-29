@@ -80,6 +80,15 @@ namespace CarRental.DAL.Repositories
             return list;
         }
 
+        public void RestoreClient(int id)
+        {
+            string sql = "UPDATE Клиент SET ВАрхиве = 0 WHERE ID = @Id";
+            using var conn = GetConnection(); conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
+        }
+
         public void AddClient(Client client)
         {
             // Добавляем запись с Датой Рождения

@@ -111,9 +111,95 @@ namespace CarRental.UI.Views.Pages
         {
             if (GridCars.SelectedItem is Car car)
             {
-                var win = new CarDetailsWindow(car);
+                var win = new CarWindow(car);
                 win.ShowDialog();
                 LoadSection("Cars");
+            }
+        }
+        private void GridInsurance_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (GridInsurance.SelectedItem is Insurance item)
+            {
+                var win = new InsuranceWindow(item.CarId, item);
+                win.ShowDialog();
+                LoadSection("Insurance");
+            }
+        }
+
+        private void GridMaintenance_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            if (GridMaintenance.SelectedItem is Maintenance item)
+            {
+                var win = new MaintenanceWindow(item.CarId, item);
+                win.ShowDialog();
+                LoadSection("Maintenance");
+            }
+        }
+        private void Restore_Click(object sender, RoutedEventArgs e)
+        {
+            if (MenuListBox.SelectedItem is not ListBoxItem item) return;
+            string tag = item.Tag.ToString();
+
+            try
+            {
+                bool restored = false;
+
+                switch (tag)
+                {
+                    case "Clients":
+                        if (GridClients.SelectedItem is Client c)
+                        {
+                            _clientService.RestoreClient(c.Id);
+                            restored = true;
+                        }
+                        break;
+
+                    case "Employees":
+                        if (GridEmployees.SelectedItem is Employee emp)
+                        {
+                            _employeeService.RestoreEmployee(emp.Id);
+                            restored = true;
+                        }
+                        break;
+
+                    case "Cars":
+                        if (GridCars.SelectedItem is Car car)
+                        {
+                            _carService.RestoreCar(car.Id);
+                            restored = true;
+                        }
+                        break;
+
+                    case "Insurance":
+                        if (GridInsurance.SelectedItem is Insurance ins)
+                        {
+                            _insuranceService.RestoreInsurance(ins.Id);
+                            restored = true;
+                        }
+                        break;
+
+                    case "Maintenance":
+                        if (GridMaintenance.SelectedItem is Maintenance m)
+                        {
+                            _maintenanceService.RestoreMaintenance(m.Id);
+                            restored = true;
+                        }
+                        break;
+                }
+
+                if (restored)
+                {
+                    InfoDialog.Show("Запись успешно восстановлена!", "Успех");
+                    LoadSection(tag); // Обновляем таблицу
+                }
+                else
+                {
+                    InfoDialog.Show("Выберите запись для восстановления.", "Внимание");
+                }
+            }
+            catch (Exception ex)
+            {
+                InfoDialog.Show("Ошибка: " + ex.Message, "Ошибка", true);
             }
         }
     }

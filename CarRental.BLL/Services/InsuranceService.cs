@@ -22,6 +22,7 @@ namespace CarRental.BLL.Services
         {
             return _repo.GetArchivedInsurances();
         }
+        public void RestoreInsurance(int id) => _repo.RestoreInsurance(id);
 
         public void Save(Insurance ins)
         {

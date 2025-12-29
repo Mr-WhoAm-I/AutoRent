@@ -15,10 +15,62 @@ namespace CarRental.DAL.Repositories
 
         public List<Maintenance> GetArchivedMaintenance()
         {
-            return GetMaintenances("WHERE M.ВАрхиве = 1 ORDER BY M.ДатаНачала DESC");
-            
+            var list = new List<Maintenance>();
+            // 1. JOIN Сотрудник для получения фамилии механика
+            // 2. JOIN Роль для должности (если нужно для MechanicPosition)
+            string sql = @"
+                SELECT 
+                    M.ID, M.IDАвтомобиля, M.IDСотрудника,
+                    M.ТипОбслуживания, M.Описание, M.ДатаНачала, M.ДатаОкончания, M.Стоимость, M.ВАрхиве,
+                    A.ГосНомер, Mk.Название + ' ' + A.Модель AS CarName,
+                    E.Фамилия AS MechanicSurname, R.Название AS MechanicRole
+                FROM Обслуживание M
+                JOIN Автомобиль A ON M.IDАвтомобиля = A.ID
+                JOIN Марка Mk ON A.IDМарки = Mk.ID
+                JOIN Сотрудник E ON M.IDСотрудника = E.ID
+                JOIN Роль R ON E.IDРоли = R.ID
+                WHERE M.ВАрхиве = 1
+                ORDER BY M.ДатаНачала DESC";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new Maintenance
+                {
+                    Id = (int)reader["ID"],
+                    CarId = (int)reader["IDАвтомобиля"],
+                    EmployeeId = (int)reader["IDСотрудника"],
+
+                    // СТРОГО ПО ВАШЕМУ КЛАССУ MAINTENANCE.CS:
+                    ServiceType = reader["ТипОбслуживания"].ToString() ?? "",
+                    Description = reader["Описание"] as string,
+                    DateStart = (DateTime)reader["ДатаНачала"], // В классе это DateStart
+                    DateEnd = reader["ДатаОкончания"] as DateTime?,
+                    Cost = reader["Стоимость"] as decimal?,
+                    IsArchived = (bool)reader["ВАрхиве"],
+
+                    // Данные из JOIN
+                    CarName = reader["CarName"].ToString() ?? "",
+                    PlateNumber = reader["ГосНомер"].ToString() ?? "",
+                    MechanicName = reader["MechanicSurname"].ToString() ?? "",
+                    MechanicPosition = reader["MechanicRole"].ToString() ?? ""
+                });
+            }
+            return list;
         }
 
+        // Восстановление
+        public void RestoreMaintenance(int id)
+        {
+            string sql = "UPDATE Обслуживание SET ВАрхиве = 0 WHERE ID = @Id";
+            using var conn = GetConnection(); conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
+        }
 
         // 2. Получить историю (все ремонты)
         public List<Maintenance> GetAllHistory()

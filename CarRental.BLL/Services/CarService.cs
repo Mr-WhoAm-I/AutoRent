@@ -12,7 +12,7 @@ namespace CarRental.BLL.Services
 
         public List<Car> GetCars() => _carRepo.GetAllCars();
         public List<Car> GetWrittenOffCars() => _carRepo.GetWrittenOffCars();
-
+        public void RestoreCar(int id) => _carRepo.RestoreCar(id);
 
         public List<int> GetOccupiedCarIds(DateTime start, DateTime end)
         {

@@ -57,19 +57,22 @@
             </Border>
 
             <Grid Grid.Column="1">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-                <DataGrid x:Name="GridClients" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
+                <DataGrid x:Name="GridClients" Grid.Row="0" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
                           MouseDoubleClick="GridClients_MouseDoubleClick">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="250" FontWeight="SemiBold"/>
                         <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="140"/>
                         <DataGridTextColumn Header="Почта" Binding="{Binding Email}" Width="180"/>
-                        <DataGridTextColumn Header="Возраст" Binding="{Binding AgeString}" Width="100"/>
-                        <DataGridTextColumn Header="Стаж" Binding="{Binding ExperienceString}" Width="100"/>
+                        <DataGridTextColumn Header="Возраст" Binding="{Binding Age}" Width="80"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <DataGrid x:Name="GridEmployees" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
+                <DataGrid x:Name="GridEmployees" Grid.Row="0" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
                           MouseDoubleClick="GridEmployees_MouseDoubleClick">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="200" FontWeight="SemiBold"/>
@@ -79,36 +82,45 @@
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <DataGrid x:Name="GridCars" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
+                <DataGrid x:Name="GridCars" Grid.Row="0" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
                           MouseDoubleClick="GridCars_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Автомобиль" Binding="{Binding DisplayName}" Width="*" FontWeight="SemiBold"/>
+                        <DataGridTextColumn Header="Автомобиль" Binding="{Binding DisplayNameShort}" Width="*" FontWeight="SemiBold"/>
                         <DataGridTextColumn Header="Гос. номер" Binding="{Binding PlateNumber}" Width="120"/>
                         <DataGridTextColumn Header="Год" Binding="{Binding Year}" Width="80"/>
                         <DataGridTextColumn Header="Пробег" Binding="{Binding Mileage, StringFormat={}{0} км}" Width="100"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <DataGrid x:Name="GridInsurance" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed">
+                <DataGrid x:Name="GridInsurance" Grid.Row="0" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
+                          MouseDoubleClick="GridInsurance_MouseDoubleClick">
                     <DataGrid.Columns>
                         <DataGridTextColumn Header="Полис" Binding="{Binding PolicyNumber}" FontWeight="Bold" Width="150"/>
                         <DataGridTextColumn Header="Автомобиль" Binding="{Binding CarName}" Width="200"/>
-                        <DataGridTextColumn Header="Компания" Binding="{Binding Company}" Width="150"/>
+                        <DataGridTextColumn Header="Тип" Binding="{Binding Type}" Width="100"/>
                         <DataGridTextColumn Header="Окончание" Binding="{Binding EndDate, StringFormat=dd.MM.yyyy}" Width="120"/>
                         <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost, StringFormat={}{0:N2} BYN}" Width="100"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
-                <DataGrid x:Name="GridMaintenance" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed">
+                <DataGrid x:Name="GridMaintenance" Grid.Row="0" Style="{StaticResource ModernDataGrid}" Visibility="Collapsed"
+                          MouseDoubleClick="GridMaintenance_MouseDoubleClick">
                     <DataGrid.Columns>
-                        <DataGridTextColumn Header="Дата" Binding="{Binding Date, StringFormat=dd.MM.yyyy}" FontWeight="Bold" Width="100"/>
+                        <DataGridTextColumn Header="Дата" Binding="{Binding DateStart, StringFormat=dd.MM.yyyy}" FontWeight="Bold" Width="100"/>
                         <DataGridTextColumn Header="Автомобиль" Binding="{Binding CarName}" Width="200"/>
-                        <DataGridTextColumn Header="Тип" Binding="{Binding Type}" Width="150"/>
-                        <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*" ElementStyle="{StaticResource WrapTextCell}"/>
+                        <DataGridTextColumn Header="Тип" Binding="{Binding ServiceType}" Width="150"/>
+                        <DataGridTextColumn Header="Механик" Binding="{Binding MechanicFullName}" Width="180"/>
                         <DataGridTextColumn Header="Стоимость" Binding="{Binding Cost, StringFormat={}{0:N2} BYN}" Width="100"/>
+                        <DataGridTextColumn Header="Описание" Binding="{Binding Description}" Width="*" ElementStyle="{StaticResource WrapTextCell}"/>
                     </DataGrid.Columns>
                 </DataGrid>
 
+                <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,15,0,0">
+                    <TextBlock Text="* Выберите запись, чтобы вернуть ее в работу" Foreground="Gray" VerticalAlignment="Center" Margin="0,0,15,0" FontStyle="Italic"/>
+                    <Button x:Name="BtnRestore" Content="Восстановить из архива" 
+                            Style="{StaticResource ButtonPrimary}" Background="#FFA000" BorderBrush="#FFA000"
+                            Height="40" Padding="20,0" Click="Restore_Click"/>
+                </StackPanel>
             </Grid>
         </Grid>
     </Grid>

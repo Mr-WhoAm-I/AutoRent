@@ -15,6 +15,7 @@ namespace CarRental.BLL.Services
 
         public List<Client> GetClients() => _repository.GetAllClients();
         public List<Client> GetArchivedClients() => _repository.GetArchivedClients();
+        public void RestoreClient(int id) => _repository.RestoreClient(id);
 
         public void AddClient(Client client)
         {

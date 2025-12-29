@@ -11,6 +11,7 @@ namespace CarRental.BLL.Services
 
         public List<Employee> GetAll() => _repo.GetAll();
         public List<Employee> GetArchivedEmployees() => _repo.GetArchivedEmployees();
+        public void RestoreEmployee(int id) => _repo.RestoreEmployee(id);
         public List<Employee> GetMechanics() => _repo.GetByRole("Механик");
 
         // Получить всех, кто может оформлять аренду (Админы + Менеджеры)

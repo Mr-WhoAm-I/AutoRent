@@ -98,6 +98,15 @@ namespace CarRental.DAL.Repositories
             }
             return list;
         }
+
+        public void RestoreEmployee(int id)
+        {
+            string sql = "UPDATE Клиент SET ВАрхиве = 0 WHERE ID = @Id";
+            using var conn = GetConnection(); conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
+        }
         // Получить активных сотрудников по названию роли
         public List<Employee> GetByRole(string roleName)
         {

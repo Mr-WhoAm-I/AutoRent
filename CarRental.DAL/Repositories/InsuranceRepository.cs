@@ -41,40 +41,49 @@ namespace CarRental.DAL.Repositories
         {
             var list = new List<Insurance>();
             string sql = @"
-                SELECT I.ID, I.IDАвтомобиля, I.НомерПолиса, I.ТипСтраховки, I.ДатаНачала, I.ДатаОкончания, I.Стоимость, I.ВАрхиве,
-                       M.Название + ' ' + A.Модель AS Авто
+                SELECT 
+                    I.ID, I.IDАвтомобиля, I.НомерПолиса, I.ТипСтраховки, 
+                    I.ДатаНачала, I.ДатаОкончания, I.Стоимость, I.ВАрхиве,
+                    Mk.Название + ' ' + A.Модель AS CarName
                 FROM Страховка I
                 JOIN Автомобиль A ON I.IDАвтомобиля = A.ID
-                JOIN Марка M ON A.IDМарки = M.ID
+                JOIN Марка Mk ON A.IDМарки = Mk.ID
                 WHERE I.ВАрхиве = 1
                 ORDER BY I.ДатаОкончания DESC";
 
-            using (var conn = GetConnection())
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
             {
-                conn.Open();
-                using (var cmd = new SqlCommand(sql, conn))
-                using (var reader = cmd.ExecuteReader())
+                list.Add(new Insurance
                 {
-                    while (reader.Read()) list.Add(MapInsurance(reader));
-                }
+                    Id = (int)reader["ID"],
+                    CarId = (int)reader["IDАвтомобиля"],
+
+                    // СТРОГО ПО ВАШЕМУ КЛАССУ INSURANCE.CS:
+                    PolicyNumber = reader["НомерПолиса"].ToString() ?? "",
+                    Type = reader["ТипСтраховки"].ToString() ?? "",
+                    StartDate = (DateTime)reader["ДатаНачала"],
+                    EndDate = (DateTime)reader["ДатаОкончания"],
+                    Cost = (decimal)reader["Стоимость"],
+                    IsArchived = (bool)reader["ВАрхиве"],
+
+                    CarName = reader["CarName"].ToString() ?? ""
+                });
             }
             return list;
         }
 
-        private Insurance MapInsurance(SqlDataReader reader)
+        // Восстановление
+        public void RestoreInsurance(int id)
         {
-            return new Insurance
-            {
-                Id = (int)reader["ID"],
-                CarId = (int)reader["IDАвтомобиля"],
-                PolicyNumber = reader["НомерПолиса"].ToString() ?? "",
-                Type = reader["ТипСтраховки"].ToString() ?? "",
-                StartDate = (DateTime)reader["ДатаНачала"],
-                EndDate = (DateTime)reader["ДатаОкончания"],
-                Cost = (decimal)reader["Стоимость"],
-                IsArchived = (bool)reader["ВАрхиве"],
-                CarName = reader["Авто"].ToString() ?? ""
-            };
+            string sql = "UPDATE Страховка SET ВАрхиве = 0 WHERE ID = @Id";
+            using var conn = GetConnection(); conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
         }
         public void Add(Insurance ins)
         {

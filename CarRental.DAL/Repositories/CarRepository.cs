@@ -34,7 +34,8 @@ namespace CarRental.DAL.Repositories
                     INNER JOIN СтатусАвто s ON a.IDСтатуса = s.ID
                     INNER JOIN ТипТрансмиссии t ON a.IDТрансмиссии = t.ID
                     INNER JOIN ТипТоплива f ON a.IDТоплива = f.ID
-                    INNER JOIN ТипКузова b ON a.IDКузова = b.ID";
+                    INNER JOIN ТипКузова b ON a.IDКузова = b.ID
+                WHERE s.Название <> 'Списан'";
 
             using (var connection = GetConnection())
             {
@@ -50,10 +51,10 @@ namespace CarRental.DAL.Repositories
         }
 
         // Получение списанных автомобилей
+        // Получение списанных (Ищем статус 'Списан')
         public List<Car> GetWrittenOffCars()
         {
             var cars = new List<Car>();
-            // IDСтатуса = 6 (Списан) - или ищем по названию
             string sql = @"
                 SELECT 
                     a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.Фото,
@@ -63,7 +64,7 @@ namespace CarRental.DAL.Repositories
                     a.IDТрансмиссии, t.Название AS КППНазвание,
                     a.IDТоплива, f.Название AS ТопливоНазвание,
                     a.IDКузова, b.Название AS КузовНазвание,
-                    NULL AS ДатаСтраховки, NULL AS ДатаТО, NULL AS ТипТО -- Для архива это неважно
+                    NULL AS ДатаСтраховки, NULL AS ДатаТО, NULL AS ТипТО
                 FROM Автомобиль a
                     INNER JOIN Марка m ON a.IDМарки = m.ID
                     INNER JOIN КлассАвтомобиля c ON a.IDКласса = c.ID
@@ -71,19 +72,32 @@ namespace CarRental.DAL.Repositories
                     INNER JOIN ТипТрансмиссии t ON a.IDТрансмиссии = t.ID
                     INNER JOIN ТипТоплива f ON a.IDТоплива = f.ID
                     INNER JOIN ТипКузова b ON a.IDКузова = b.ID
-                WHERE s.Название = 'Списан'";
+                WHERE s.Название = 'Списан'"; // Убедитесь, что в БД статус называется именно так
 
-            using (var connection = GetConnection())
+            using (var conn = GetConnection())
             {
-                connection.Open();
-                using var command = new SqlCommand(sql, connection);
-                using var reader = command.ExecuteReader();
-                while (reader.Read())
-                {
-                    cars.Add(MapCar(reader)); // Используем ваш вспомогательный метод MapCar
-                }
+                conn.Open();
+                using var cmd = new SqlCommand(sql, conn);
+                using var reader = cmd.ExecuteReader();
+                while (reader.Read()) cars.Add(MapCar(reader));
             }
             return cars;
+        }
+
+        // ВОССТАНОВЛЕНИЕ АВТО (Ставим статус "Свободен")
+        public void RestoreCar(int carId)
+        {
+            // Находим ID статуса "Свободен" (обычно 1) или ставим хардкодом, если уверены
+            string sql = @"
+                UPDATE Автомобиль 
+                SET IDСтатуса = (SELECT TOP 1 ID FROM СтатусАвто WHERE Название = 'Свободен') 
+                WHERE ID = @Id";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", carId);
+            cmd.ExecuteNonQuery();
         }
 
         // Метод добавления автомобиля

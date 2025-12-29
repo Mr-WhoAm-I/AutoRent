@@ -29,6 +29,7 @@ namespace CarRental.BLL.Services
         {
             return _repo.GetHistoryByCarId(carId);
         }
+        public void RestoreMaintenance(int id) => _repo.RestoreMaintenance(id);
 
         public void Delete(int id) => _repo.Delete(id);
 
