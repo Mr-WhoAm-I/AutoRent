@@ -72,6 +72,29 @@ namespace CarRental.UI.Views.Pages
             win.ShowDialog();
             // Здесь обновлять сводку не обязательно, т.к. новый клиент не создает аренду
         }
+        private void BtnAutoFine_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                // Вызываем нашу процедуру с курсором через сервис (нужен FinanceService)
+                var financeService = new FinanceService();
+                int count = financeService.AutoChargeFines();
+
+                if (count > 0)
+                {
+                    InfoDialog.Show($"Начислено новых штрафов: {count}", "Успех");
+                    LoadData(); // Обновляем сводку, чтобы увидеть изменения
+                }
+                else
+                {
+                    InfoDialog.Show("Новых просрочек не найдено.", "Инфо");
+                }
+            }
+            catch (Exception ex)
+            {
+                InfoDialog.Show("Ошибка: " + ex.Message, "Ошибка", true);
+            }
+        }
 
         // Двойной клик по карточке -> Открыть детали аренды
         private void Item_MouseDown(object sender, MouseButtonEventArgs e)

@@ -198,14 +198,25 @@ namespace CarRental.UI.Views.Windows
         {
             if (ComboCar.SelectedItem is Car car && DateStart.SelectedDate.HasValue && DateEnd.SelectedDate.HasValue)
             {
-                var days = (DateEnd.SelectedDate.Value - DateStart.SelectedDate.Value).Days;
-                if (days < 1) days = 1;
+                try
+                {
+                    decimal total = _rentalService.CalculateCost(
+                        DateStart.SelectedDate.Value,
+                        DateEnd.SelectedDate.Value,
+                        car.PricePerDay
+                    );
 
-                decimal total = days * car.PricePerDay;
+                    var days = (DateEnd.SelectedDate.Value - DateStart.SelectedDate.Value).Days;
+                    if (days < 1) days = 1;
 
-                TxtTotal.Text = $"{total:N2} BYN";
-                TxtDays.Text = $"{days} сут.";
-                TxtPricePerDay.Text = $"{car.PricePerDay:N0} BYN/сут.";
+                    TxtTotal.Text = $"{total:N2} BYN";
+                    TxtDays.Text = $"{days} сут.";
+                    TxtPricePerDay.Text = $"{car.PricePerDay:N0} BYN/сут.";
+                }
+                catch (Exception ex)
+                {
+                    TxtTotal.Text = "Ошибка БД";
+                }
             }
             else
             {

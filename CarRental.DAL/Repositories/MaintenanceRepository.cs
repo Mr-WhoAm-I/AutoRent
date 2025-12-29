@@ -7,112 +7,34 @@ namespace CarRental.DAL.Repositories
 {
     public class MaintenanceRepository : BaseRepository
     {
-        // 1. Получить активные ремонты (где дата окончания NULL)
+        // 1. ЧТЕНИЕ ДАННЫХ ЧЕРЕЗ ПРЕДСТАВЛЕНИЕ (VIEW)
+        // Вместо дублирования JOIN-ов мы просто фильтруем View
+
         public List<Maintenance> GetActiveMaintenances()
         {
-            return GetMaintenances("WHERE o.ДатаОкончания IS NULL");
+            return GetMaintenances("WHERE ДатаОкончания IS NULL AND ВАрхиве = 0");
         }
 
         public List<Maintenance> GetArchivedMaintenance()
         {
-            var list = new List<Maintenance>();
-            // 1. JOIN Сотрудник для получения фамилии механика
-            // 2. JOIN Роль для должности (если нужно для MechanicPosition)
-            string sql = @"
-                SELECT 
-                    M.ID, M.IDАвтомобиля, M.IDСотрудника,
-                    M.ТипОбслуживания, M.Описание, M.ДатаНачала, M.ДатаОкончания, M.Стоимость, M.ВАрхиве,
-                    A.ГосНомер, Mk.Название + ' ' + A.Модель AS CarName,
-                    E.Фамилия AS MechanicSurname, R.Название AS MechanicRole
-                FROM Обслуживание M
-                JOIN Автомобиль A ON M.IDАвтомобиля = A.ID
-                JOIN Марка Mk ON A.IDМарки = Mk.ID
-                JOIN Сотрудник E ON M.IDСотрудника = E.ID
-                JOIN Роль R ON E.IDРоли = R.ID
-                WHERE M.ВАрхиве = 1
-                ORDER BY M.ДатаНачала DESC";
-
-            using var conn = GetConnection();
-            conn.Open();
-            using var cmd = new SqlCommand(sql, conn);
-            using var reader = cmd.ExecuteReader();
-            while (reader.Read())
-            {
-                list.Add(new Maintenance
-                {
-                    Id = (int)reader["ID"],
-                    CarId = (int)reader["IDАвтомобиля"],
-                    EmployeeId = (int)reader["IDСотрудника"],
-
-                    // СТРОГО ПО ВАШЕМУ КЛАССУ MAINTENANCE.CS:
-                    ServiceType = reader["ТипОбслуживания"].ToString() ?? "",
-                    Description = reader["Описание"] as string,
-                    DateStart = (DateTime)reader["ДатаНачала"], // В классе это DateStart
-                    DateEnd = reader["ДатаОкончания"] as DateTime?,
-                    Cost = reader["Стоимость"] as decimal?,
-                    IsArchived = (bool)reader["ВАрхиве"],
-
-                    // Данные из JOIN
-                    CarName = reader["CarName"].ToString() ?? "",
-                    PlateNumber = reader["ГосНомер"].ToString() ?? "",
-                    MechanicName = reader["MechanicSurname"].ToString() ?? "",
-                    MechanicPosition = reader["MechanicRole"].ToString() ?? ""
-                });
-            }
-            return list;
+            return GetMaintenances("WHERE ВАрхиве = 1 ORDER BY ДатаНачала DESC");
         }
 
-        // Восстановление
-        public void RestoreMaintenance(int id)
-        {
-            string sql = "UPDATE Обслуживание SET ВАрхиве = 0 WHERE ID = @Id";
-            using var conn = GetConnection(); conn.Open();
-            using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@Id", id);
-            cmd.ExecuteNonQuery();
-        }
-
-        // 2. Получить историю (все ремонты)
         public List<Maintenance> GetAllHistory()
         {
-            return GetMaintenances("ORDER BY o.ДатаНачала DESC");
+            return GetMaintenances("WHERE ВАрхиве = 0 ORDER BY ДатаНачала DESC");
         }
 
         public List<Maintenance> GetHistoryByCarId(int carId)
         {
-            return GetMaintenances($"WHERE o.IDАвтомобиля = {carId} AND o.ВАрхиве = 0 ORDER BY o.ДатаНачала DESC");
+            return GetMaintenances($"WHERE IDАвтомобиля = {carId} AND ВАрхиве = 0 ORDER BY ДатаНачала DESC");
         }
 
-        public void Delete(int id)
-        {
-            string sql = @"
-                UPDATE Обслуживание 
-                SET ВАрхиве = 1, 
-                    ДатаОкончания = ISNULL(ДатаОкончания, GETDATE()) 
-                WHERE ID = @Id";
-
-            using var conn = GetConnection();
-            conn.Open();
-            using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@Id", id);
-            cmd.ExecuteNonQuery();
-        }
-
-        // Вспомогательный метод, чтобы не дублировать код чтения
+        // Универсальный метод чтения из v_Maintenance_Journal
         private List<Maintenance> GetMaintenances(string whereClause = "")
         {
             var list = new List<Maintenance>();
-            // Добавили s.Должность в SELECT
-            string sql = $@"
-                SELECT o.ID, o.IDАвтомобиля, o.IDСотрудника,
-                       o.ТипОбслуживания, o.Описание, o.ДатаНачала, o.ДатаОкончания, o.Стоимость,
-                       a.Модель, m.Название as Марка, a.ГосНомер,
-                       s.Фамилия, s.Имя, s.Должность
-                  FROM Обслуживание o
-                    INNER JOIN Автомобиль a ON o.IDАвтомобиля = a.ID
-                    INNER JOIN Марка m ON a.IDМарки = m.ID
-                    INNER JOIN Сотрудник s ON o.IDСотрудника = s.ID
-                  {whereClause}";
+            string sql = $"SELECT * FROM Журнал_Обслуживаний {whereClause}";
 
             using var conn = GetConnection();
             conn.Open();
@@ -130,16 +52,61 @@ namespace CarRental.DAL.Repositories
                     DateStart = (DateTime)reader["ДатаНачала"],
                     DateEnd = reader["ДатаОкончания"] as DateTime?,
                     Cost = reader["Стоимость"] as decimal?,
+                    IsArchived = (bool)reader["ВАрхиве"],
 
-                    CarName = $"{reader["Марка"]} {reader["Модель"]}",
+                    // Данные из VIEW
+                    CarName = reader["АвтоНазвание"].ToString() ?? "",
                     PlateNumber = reader["ГосНомер"].ToString() ?? "",
-                    MechanicName = $"{reader["Фамилия"]} {reader["Имя"]}",
-
-                    // Читаем новое поле
+                    MechanicName = reader["МеханикФИО"].ToString() ?? "",
                     MechanicPosition = reader["Должность"].ToString() ?? ""
                 });
             }
             return list;
+        }
+
+        // 2. ОТПРАВКА НА СЕРВИС ЧЕРЕЗ ХРАНИМУЮ ПРОЦЕДУРУ
+        public void AddMaintenance(Maintenance m)
+        {
+            using var conn = GetConnection();
+            conn.Open();
+
+            // Вызываем процедуру вместо ручной транзакции
+            using var cmd = new SqlCommand("sp_ДобавитьМашинуНаОбслуживание", conn);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@CarId", m.CarId);
+            cmd.Parameters.AddWithValue("@EmployeeId", m.EmployeeId);
+            cmd.Parameters.AddWithValue("@ServiceType", m.ServiceType);
+            cmd.Parameters.AddWithValue("@Description", m.Description ?? (object)DBNull.Value);
+            cmd.Parameters.AddWithValue("@StartDate", m.DateStart);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        // === ОСТАЛЬНЫЕ МЕТОДЫ (Оставляем как есть или оптимизируем позже) ===
+
+        public void RestoreMaintenance(int id)
+        {
+            string sql = "UPDATE Обслуживание SET ВАрхиве = 0 WHERE ID = @Id";
+            using var conn = GetConnection(); conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
+        }
+
+        public void Delete(int id)
+        {
+            string sql = @"
+                UPDATE Обслуживание 
+                SET ВАрхиве = 1, 
+                    ДатаОкончания = ISNULL(ДатаОкончания, GETDATE()) 
+                WHERE ID = @Id";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+            cmd.ExecuteNonQuery();
         }
 
         public void Update(Maintenance m)
@@ -167,46 +134,8 @@ namespace CarRental.DAL.Repositories
             cmd.ExecuteNonQuery();
         }
 
-        // 3. Добавить запись о ремонте (Отправить в сервис)
-        public void AddMaintenance(Maintenance m)
-        {
-            using var conn = GetConnection();
-            conn.Open();
-
-            // Транзакция: Добавить запись + Сменить статус авто
-            using var transaction = conn.BeginTransaction();
-            try
-            {
-                // А. Вставка записи
-                string sqlInsert = @"
-                    INSERT INTO Обслуживание (IDАвтомобиля, IDСотрудника, ТипОбслуживания, Описание, ДатаНачала)
-                    VALUES (@CarId, @EmpId, @Type, @Desc, @Date)";
-
-                using var cmd1 = new SqlCommand(sqlInsert, conn, transaction);
-                cmd1.Parameters.AddWithValue("@CarId", m.CarId);
-                cmd1.Parameters.AddWithValue("@EmpId", m.EmployeeId);
-                cmd1.Parameters.AddWithValue("@Type", m.ServiceType);
-                cmd1.Parameters.AddWithValue("@Desc", m.Description ?? (object)DBNull.Value);
-                cmd1.Parameters.AddWithValue("@Date", m.DateStart);
-                cmd1.ExecuteNonQuery();
-
-                // Б. Смена статуса авто на "В ремонте" (ID = 5) или "На обслуживании" (ID = 4)
-                // Допустим, мы ставим 5 (В ремонте)
-                string sqlUpdate = "UPDATE Автомобиль SET IDСтатуса = 5 WHERE ID = @CarId";
-                using var cmd2 = new SqlCommand(sqlUpdate, conn, transaction);
-                cmd2.Parameters.AddWithValue("@CarId", m.CarId);
-                cmd2.ExecuteNonQuery();
-
-                transaction.Commit();
-            }
-            catch
-            {
-                transaction.Rollback();
-                throw;
-            }
-        }
-
-        // 4. Завершить ремонт
+        // Завершение ремонта (пока оставим старую логику с транзакцией C#, 
+        // так как мы не делали под неё отдельную процедуру в этом шаге, но она простая)
         public void CompleteMaintenance(int maintenanceId, DateTime endDate, decimal cost)
         {
             using var conn = GetConnection();
@@ -214,26 +143,18 @@ namespace CarRental.DAL.Repositories
             using var transaction = conn.BeginTransaction();
             try
             {
-                // А. Обновляем запись (ставим дату и цену)
-                string sqlUpdateM = @"
-                    UPDATE Обслуживание 
-                      SET ДатаОкончания = @End, Стоимость = @Cost 
-                      WHERE ID = @Id";
-
+                string sqlUpdateM = "UPDATE Обслуживание SET ДатаОкончания = @End, Стоимость = @Cost WHERE ID = @Id";
                 using var cmd1 = new SqlCommand(sqlUpdateM, conn, transaction);
                 cmd1.Parameters.AddWithValue("@End", endDate);
                 cmd1.Parameters.AddWithValue("@Cost", cost);
                 cmd1.Parameters.AddWithValue("@Id", maintenanceId);
                 cmd1.ExecuteNonQuery();
 
-                // Б. Узнаем ID машины
-                // (Тут можно было бы передать CarId параметром, но надежнее найти его в БД)
                 string sqlGetCar = "SELECT IDАвтомобиля FROM Обслуживание WHERE ID = @Id";
                 using var cmdGet = new SqlCommand(sqlGetCar, conn, transaction);
                 cmdGet.Parameters.AddWithValue("@Id", maintenanceId);
                 int carId = (int)cmdGet.ExecuteScalar();
 
-                // В. Меняем статус авто на "Свободен" (ID = 1)
                 string sqlUpdateCar = "UPDATE Автомобиль SET IDСтатуса = 1 WHERE ID = @CarId";
                 using var cmd2 = new SqlCommand(sqlUpdateCar, conn, transaction);
                 cmd2.Parameters.AddWithValue("@CarId", carId);
@@ -278,12 +199,9 @@ namespace CarRental.DAL.Repositories
             return list;
         }
 
-        // Добавляем метод поиска занятых машин (в ремонте)
         public List<int> GetOccupiedCarIds(DateTime start, DateTime end)
         {
             var ids = new List<int>();
-            // Ремонт пересекается с фильтром
-            // (ДатаОкончания IS NULL означает, что ремонт еще идет -> считаем занятым)
             string sql = @"
                 SELECT DISTINCT IDАвтомобиля 
                 FROM Обслуживание 

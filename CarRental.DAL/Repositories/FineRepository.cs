@@ -64,5 +64,17 @@ namespace CarRental.DAL.Repositories
             cmd.Parameters.AddWithValue("@Id", id);
             cmd.ExecuteNonQuery();
         }
+
+        // Вызов процедуры с КУРСОРОМ для массового начисления штрафов
+        public int ProcessOverdueRentals()
+        {
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand("sp_НачислитьШтрафыЗаПросрочку", conn);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+            object result = cmd.ExecuteScalar();
+            return result != null ? (int)result : 0;
+        }
     }
 }

@@ -16,6 +16,11 @@ namespace CarRental.BLL.Services
             if (fine.Id == 0) _fineRepo.Add(fine);
             else _fineRepo.Update(fine);
         }
+        // Автоматическое начисление штрафов (вызывает процедуру с курсором)
+        public int AutoChargeFines()
+        {
+            return _fineRepo.ProcessOverdueRentals();
+        }
         public void DeleteFine(int id) => _fineRepo.Delete(id);
 
         // ПЛАТЕЖИ

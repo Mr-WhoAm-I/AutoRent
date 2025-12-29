@@ -253,36 +253,77 @@ namespace CarRental.DAL.Repositories
         }
 
         // Добавление новой аренды
+        // Добавление новой аренды через Хранимую Процедуру
         public void AddRental(Rental rental)
         {
-            string sql = @"
-                INSERT INTO Аренда (IDКлиента, IDАвтомобиля, IDСотрудника, ДатаНачала, ДатаОкончанияПлановая, СтоимостьПриАренде)
-                VALUES (@ClientId, @CarId, @EmpId, @Start, @EndPlan, @Price)";
-
             using var conn = GetConnection();
             conn.Open();
-            using var cmd = new SqlCommand(sql, conn);
+
+            using var cmd = new SqlCommand("sp_СоздатьАренду", conn);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure; // Указываем, что это процедура
+
+            // Передаем параметры (имена должны совпадать с теми, что в SQL)
             cmd.Parameters.AddWithValue("@ClientId", rental.ClientId);
             cmd.Parameters.AddWithValue("@CarId", rental.CarId);
-            cmd.Parameters.AddWithValue("@EmpId", rental.EmployeeId);
-            cmd.Parameters.AddWithValue("@Start", rental.StartDate);
-            cmd.Parameters.AddWithValue("@EndPlan", rental.PlannedEndDate);
-            cmd.Parameters.AddWithValue("@Price", rental.PriceAtRentalMoment);
+            cmd.Parameters.AddWithValue("@EmployeeId", rental.EmployeeId);
+            cmd.Parameters.AddWithValue("@StartDate", rental.StartDate);
+            cmd.Parameters.AddWithValue("@PlannedEndDate", rental.PlannedEndDate);
+            cmd.Parameters.AddWithValue("@PricePerDay", rental.PriceAtRentalMoment);
 
-            cmd.ExecuteNonQuery();
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                // Если процедура выбросила нашу кастомную ошибку (51000 - Авто занято),
+                // пробрасываем понятное сообщение пользователю.
+                if (ex.Number == 51000)
+                {
+                    throw new Exception(ex.Message);
+                }
+                throw; // Остальные ошибки (связь, права и т.д.) пробрасываем как есть
+            }
         }
 
-        // Завершение аренды (Простановка фактической даты)
-        // Остальные поля (штрафы, платежи) добавляются в свои таблицы, а итоговая стоимость считается во View
+        
         public void FinishRental(int rentalId, DateTime actualEnd)
         {
-            string sql = "UPDATE Аренда SET ДатаОкончанияФактическая = @ActualEnd WHERE ID = @Id";
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand("sp_ЗакрытьАренду", conn);
+            cmd.CommandType = System.Data.CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@RentalId", rentalId);
+            cmd.Parameters.AddWithValue("@ActualEndDate", actualEnd);
+
+            try
+            {
+                cmd.ExecuteNonQuery();
+            }
+            catch (SqlException ex)
+            {
+                // Если процедура выбросила нашу ошибку (51000)
+                if (ex.Number == 51000) throw new Exception(ex.Message);
+                throw;
+            }
+        }
+
+        public decimal CalculatePotentialCost(DateTime start, DateTime end, decimal pricePerDay)
+        {
+            // Обращаемся к скалярной функции
+            string sql = "SELECT dbo.fn_CalculateRentalCost(@Start, @End, @Price)";
+
             using var conn = GetConnection();
             conn.Open();
             using var cmd = new SqlCommand(sql, conn);
-            cmd.Parameters.AddWithValue("@Id", rentalId);
-            cmd.Parameters.AddWithValue("@ActualEnd", actualEnd);
-            cmd.ExecuteNonQuery();
+            cmd.Parameters.AddWithValue("@Start", start);
+            cmd.Parameters.AddWithValue("@End", end);
+            cmd.Parameters.AddWithValue("@Price", pricePerDay);
+
+            // ExecuteScalar возвращает первый столбец первой строки (наш результат)
+            object result = cmd.ExecuteScalar();
+            return result != null && result != DBNull.Value ? (decimal)result : 0;
         }
     }
 }

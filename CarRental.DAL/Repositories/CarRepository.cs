@@ -6,36 +6,12 @@ namespace CarRental.DAL.Repositories
     public class CarRepository : BaseRepository
     {
         // Метод для получения ВСЕХ автомобилей
+        // Метод для получения ВСЕХ автомобилей (использует представление v_Cars_Catalog)
         public List<Car> GetAllCars()
         {
             var cars = new List<Car>();
 
-            string sql = @"
-                SELECT 
-                    a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.Фото,
-                    a.IDМарки, m.Название AS МаркаНазвание,
-                    a.IDКласса, c.Название AS КлассНазвание,
-                    a.IDСтатуса, s.Название AS СтатусНазвание,
-                    a.IDТрансмиссии, t.Название AS КППНазвание,
-                    a.IDТоплива, f.Название AS ТопливоНазвание,
-                    a.IDКузова, b.Название AS КузовНазвание,
-                    
-                    -- Подзапрос: Последняя дата окончания страховки
-                    (SELECT MAX(ДатаОкончания) FROM Страховка WHERE IDАвтомобиля = a.ID) AS ДатаСтраховки,
-                    
-                    -- Подзапрос: Ближайшая будущая дата обслуживания
-                    (SELECT MIN(ДатаНачала) FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE)) AS ДатаТО,
-                    
-                    (SELECT TOP 1 ТипОбслуживания FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE) ORDER BY ДатаНачала) AS ТипТО
-
-                FROM Автомобиль a
-                    INNER JOIN Марка m ON a.IDМарки = m.ID
-                    INNER JOIN КлассАвтомобиля c ON a.IDКласса = c.ID
-                    INNER JOIN СтатусАвто s ON a.IDСтатуса = s.ID
-                    INNER JOIN ТипТрансмиссии t ON a.IDТрансмиссии = t.ID
-                    INNER JOIN ТипТоплива f ON a.IDТоплива = f.ID
-                    INNER JOIN ТипКузова b ON a.IDКузова = b.ID
-                WHERE s.Название <> 'Списан'";
+            string sql = "SELECT * FROM Каталог_Машин ORDER BY МаркаНазвание, Модель";
 
             using (var connection = GetConnection())
             {
@@ -188,55 +164,24 @@ namespace CarRental.DAL.Repositories
         // Поиск свободных машин на заданный период
         // Исправленный метод поиска (SQL остался тем же, но проверим его)
         // Добавили параметр currentRentalId (по умолчанию null)
+        // Поиск свободных машин на заданный период
+        // Использует табличную функцию fn_GetAvailableCars и представление v_Cars_Catalog
         public List<Car> GetAvailableCars(DateTime start, DateTime end, int? currentRentalId = null)
         {
             var list = new List<Car>();
 
-            // Добавляем условие в подзапрос Аренды: ID != @CurrentRentalId
-            // (или @CurrentRentalId IS NULL, если мы создаем новую)
+            // Мы выбираем полные данные из VIEW только для тех ID, которые вернула ФУНКЦИЯ
             string sql = @"
-                SELECT 
-                    a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.Фото,
-                    a.IDМарки, m.Название AS МаркаНазвание,
-                    a.IDКласса, c.Название AS КлассНазвание,
-                    a.IDСтатуса, s.Название AS СтатусНазвание,
-                    a.IDТрансмиссии, t.Название AS КППНазвание,
-                    a.IDТоплива, f.Название AS ТопливоНазвание,
-                    a.IDКузова, b.Название AS КузовНазвание,
-                    
-                    (SELECT MAX(ДатаОкончания) FROM Страховка WHERE IDАвтомобиля = a.ID) AS ДатаСтраховки,
-                    (SELECT MIN(ДатаНачала) FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE)) AS ДатаТО,
-                    (SELECT TOP 1 ТипОбслуживания FROM Обслуживание WHERE IDАвтомобиля = a.ID AND ДатаНачала >= CAST(GETDATE() AS DATE) ORDER BY ДатаНачала) AS ТипТО
-
-                FROM Автомобиль a
-                    INNER JOIN Марка m ON a.IDМарки = m.ID
-                    INNER JOIN КлассАвтомобиля c ON a.IDКласса = c.ID
-                    INNER JOIN СтатусАвто s ON a.IDСтатуса = s.ID
-                    INNER JOIN ТипТрансмиссии t ON a.IDТрансмиссии = t.ID
-                    INNER JOIN ТипТоплива f ON a.IDТоплива = f.ID
-                    INNER JOIN ТипКузова b ON a.IDКузова = b.ID
-                WHERE a.IDСтатуса NOT IN (5, 6)
-                  AND a.ID NOT IN (
-                        SELECT DISTINCT IDАвтомобиля FROM Аренда 
-                        WHERE (ДатаНачала <= @End) AND (ISNULL(ДатаОкончанияФактическая, ДатаОкончанияПлановая) >= @Start)
-                          AND (ID != @CurrentRentalId OR @CurrentRentalId IS NULL) -- <--- ИСКЛЮЧАЕМ ТЕКУЩУЮ АРЕНДУ
-                  )
-                  AND a.ID NOT IN (
-                        SELECT DISTINCT IDАвтомобиля FROM Бронирование
-                        WHERE (ДатаНачала <= @End) AND (ДатаОкончания >= @Start)
-                  )
-                  AND a.ID NOT IN (
-                        SELECT DISTINCT IDАвтомобиля FROM Обслуживание
-                        WHERE (ДатаНачала <= @End) AND (ISNULL(ДатаОкончания, '2100-01-01') >= @Start)
-                  )";
+                SELECT * FROM Каталог_Машин 
+                WHERE ID IN (SELECT ID FROM fn_GetAvailableCars(@Start, @End, @CurrentRentalId))
+                ORDER BY МаркаНазвание, Модель";
 
             using var conn = GetConnection();
             conn.Open();
             using var cmd = new SqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@Start", start);
             cmd.Parameters.AddWithValue("@End", end);
-
-            // Передаем ID или DBNull
+            // Передаем ID текущей аренды (для редактирования) или NULL (для создания)
             cmd.Parameters.AddWithValue("@CurrentRentalId", currentRentalId ?? (object)DBNull.Value);
 
             using var reader = cmd.ExecuteReader();

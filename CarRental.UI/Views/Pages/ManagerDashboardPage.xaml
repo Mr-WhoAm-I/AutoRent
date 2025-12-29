@@ -78,7 +78,7 @@
 
             <Grid Grid.Row="2">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2.5*"/>
+                    <ColumnDefinition Width="2*"/>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
@@ -168,7 +168,12 @@
                         <StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
                                 <TextBlock Text="!" Foreground="#EF4444" FontWeight="Bold" FontSize="16" Margin="0,0,10,0"/>
-                                <TextBlock x:Name="HeaderOverdue" Text="Просроченные (0)" FontWeight="Bold" Foreground="#333"/>
+                                <TextBlock x:Name="HeaderOverdue" Text="Просроченные (0)" FontWeight="Bold" Foreground="#333" VerticalAlignment="Center"/>
+
+                                <Button Content="⚡ Авто-штраф" Margin="15,0,0,0" Padding="8,0" Height="24" FontSize="11"
+                                        Style="{StaticResource ButtonDashed}" BorderBrush="#EF4444" Foreground="#EF4444"
+                                        ToolTip="Автоматически начислить штрафы за просрочку (через курсор БД)"
+                                        Click="BtnAutoFine_Click"/>
                             </StackPanel>
 
                             <ItemsControl x:Name="ListOverdue">

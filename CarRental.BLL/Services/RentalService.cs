@@ -42,5 +42,8 @@ namespace CarRental.BLL.Services
         {
             _repo.UpdateComment(rentalId, comment);
         }
+
+        public decimal CalculateCost(DateTime start, DateTime end, decimal pricePerDay)
+            => _repo.CalculatePotentialCost(start, end, pricePerDay);
     }
 }

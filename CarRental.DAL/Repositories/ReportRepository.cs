@@ -9,18 +9,14 @@ namespace CarRental.DAL.Repositories
     public class ReportRepository : BaseRepository
     {
         // 1. КЛИЕНТЫ (Без изменений)
+        // 1. КЛИЕНТЫ (Оптимизировано через View v_Clients_Report)
         public List<ClientReportItem> GetClientsReport()
         {
-            // ... (оставьте старый код) ...
             var list = new List<ClientReportItem>();
-            string sql = @"
-                SELECT 
-                    Фамилия + ' ' + Имя + ' ' + ISNULL(Отчество, '') AS FIO,
-                    Телефон, Почта,
-                    (SELECT COUNT(*) FROM Аренда WHERE IDКлиента = K.ID) as Cnt
-                FROM Клиент K WHERE ВАрхиве = 0 ORDER BY Фамилия";
+            string sql = "SELECT * FROM Отчет_По_Клиентам ORDER BY FIO";
 
-            using var conn = GetConnection(); conn.Open();
+            using var conn = GetConnection();
+            conn.Open();
             using var cmd = new SqlCommand(sql, conn);
             using var reader = cmd.ExecuteReader();
             while (reader.Read())
@@ -29,8 +25,8 @@ namespace CarRental.DAL.Repositories
                 {
                     FullName = reader["FIO"].ToString() ?? "",
                     Phone = reader["Телефон"].ToString() ?? "",
-                    Email = reader["Почта"] as string ?? "Нет",
-                    RentalsCount = (int)reader["Cnt"]
+                    Email = reader["Почта"].ToString() ?? "",
+                    RentalsCount = (int)reader["ВсегоАренд"]
                 });
             }
             return list;
@@ -83,21 +79,16 @@ namespace CarRental.DAL.Repositories
         }
 
         // 3. ФИНАНСЫ (Детальный список)
+        // 3. ФИНАНСЫ (Детальный список через MSTVF-функцию)
         public List<PaymentReportItem> GetPaymentDetails(DateTime start, DateTime end)
         {
             var list = new List<PaymentReportItem>();
-            string sql = @"
-                SELECT 
-                    P.ID, P.ДатаПлатежа, P.Сумма, P.ТипПлатежа,
-                    M.Название + ' ' + A.Модель + ' (' + A.ГосНомер + ')' AS CarInfo
-                FROM Платеж P
-                JOIN Аренда R ON P.IDАренды = R.ID
-                JOIN Автомобиль A ON R.IDАвтомобиля = A.ID
-                JOIN Марка M ON A.IDМарки = M.ID
-                WHERE P.ДатаПлатежа BETWEEN @Start AND @End
-                ORDER BY P.ДатаПлатежа"; // Сортировка по дате обязательна для группировки
 
-            using var conn = GetConnection(); conn.Open();
+            // Вызываем нашу новую функцию
+            string sql = "SELECT * FROM fn_Финансовый_Отчет(@Start, @End) ORDER BY Дата DESC";
+
+            using var conn = GetConnection();
+            conn.Open();
             using var cmd = new SqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@Start", start);
             cmd.Parameters.AddWithValue("@End", end);
@@ -108,10 +99,12 @@ namespace CarRental.DAL.Repositories
                 list.Add(new PaymentReportItem
                 {
                     Id = (int)reader["ID"],
-                    Date = (DateTime)reader["ДатаПлатежа"],
+                    Date = (DateTime)reader["Дата"],
                     Amount = (decimal)reader["Сумма"],
-                    Type = reader["ТипПлатежа"].ToString() ?? "",
-                    CarInfo = reader["CarInfo"].ToString() ?? ""
+                    // В функции мы назвали колонку 'ТипОперации', а в классе свойство Type
+                    Type = reader["ТипОперации"].ToString() ?? "",
+                    // В функции 'АвтоИнфо' -> CarInfo
+                    CarInfo = reader["АвтоИнфо"].ToString() ?? ""
                 });
             }
             return list;
