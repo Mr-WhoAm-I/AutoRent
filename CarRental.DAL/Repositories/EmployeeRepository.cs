@@ -68,6 +68,36 @@ namespace CarRental.DAL.Repositories
             return list;
         }
 
+        // Получение уволенных сотрудников
+        public List<Employee> GetArchivedEmployees()
+        {
+            var list = new List<Employee>();
+            string sql = @"
+                SELECT s.ID, s.Фамилия, s.Имя, s.Логин, s.Должность, s.IDРоли, r.Название as Роль
+                FROM Сотрудник s
+                JOIN Роль r ON s.IDРоли = r.ID
+                WHERE s.ВАрхиве = 1
+                ORDER BY s.Фамилия";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            using var reader = cmd.ExecuteReader();
+            while (reader.Read())
+            {
+                list.Add(new Employee
+                {
+                    Id = (int)reader["ID"],
+                    Surname = reader["Фамилия"].ToString() ?? "",
+                    Name = reader["Имя"].ToString() ?? "",
+                    Login = reader["Логин"].ToString() ?? "",
+                    Position = reader["Должность"].ToString() ?? "",
+                    RoleId = (int)reader["IDРоли"],
+                    RoleName = reader["Роль"].ToString() ?? ""
+                });
+            }
+            return list;
+        }
         // Получить активных сотрудников по названию роли
         public List<Employee> GetByRole(string roleName)
         {

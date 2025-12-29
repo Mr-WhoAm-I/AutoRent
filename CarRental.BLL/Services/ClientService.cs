@@ -7,8 +7,6 @@ namespace CarRental.BLL.Services
     public class ClientService
     {
         private readonly ClientRepository _repository;
-        private readonly RentalRepository _rentalRepo = new();
-        private readonly BookingRepository _bookingRepo = new();
 
         public ClientService()
         {
@@ -16,6 +14,7 @@ namespace CarRental.BLL.Services
         }
 
         public List<Client> GetClients() => _repository.GetAllClients();
+        public List<Client> GetArchivedClients() => _repository.GetArchivedClients();
 
         public void AddClient(Client client)
         {

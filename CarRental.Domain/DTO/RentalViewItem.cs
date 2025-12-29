@@ -37,5 +37,6 @@ namespace CarRental.Domain.DTO
 
         // Цвет долга для UI
         public string DebtColor => Debt > 0 ? "#F44336" : "#00C853";
+        public bool HasDebt => Debt > 0;
     }
 }

@@ -44,6 +44,42 @@ namespace CarRental.DAL.Repositories
             return list;
         }
 
+        public List<Client> GetArchivedClients()
+        {
+            var list = new List<Client>();
+            string sql = @"
+                SELECT ID, Фамилия, Имя, Отчество, Телефон, Почта, ДатаРождения, Возраст, СтажВождения, ВАрхиве
+                FROM Клиент
+                WHERE ВАрхиве = 1
+                ORDER BY Фамилия";
+
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+                using (var cmd = new SqlCommand(sql, conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new Client
+                        {
+                            Id = (int)reader["ID"],
+                            Surname = reader["Фамилия"].ToString() ?? "",
+                            Name = reader["Имя"].ToString() ?? "",
+                            Patronymic = reader["Отчество"] as string,
+                            Phone = reader["Телефон"].ToString() ?? "",
+                            Email = reader["Почта"] as string,
+                            DateOfBirth = reader["ДатаРождения"] as DateTime?,
+                            Age = reader["Возраст"] as int?,
+                            DrivingExperience = reader["СтажВождения"] as int?,
+                            IsArchived = true
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
         public void AddClient(Client client)
         {
             // Добавляем запись с Датой Рождения

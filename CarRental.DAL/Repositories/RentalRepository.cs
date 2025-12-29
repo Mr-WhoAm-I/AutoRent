@@ -34,6 +34,16 @@ namespace CarRental.DAL.Repositories
             return list;
         }
 
+        public void UpdateComment(int rentalId, string comment)
+        {
+            string sql = "UPDATE Аренда SET Отзыв = @Comment WHERE ID = @Id";
+            using var conn = GetConnection(); conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", rentalId);
+            cmd.Parameters.AddWithValue("@Comment", (object)comment ?? System.DBNull.Value);
+            cmd.ExecuteNonQuery();
+        }
+
         public List<int> GetOccupiedCarIds(DateTime start, DateTime end)
         {
             var ids = new List<int>();

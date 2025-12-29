@@ -50,4 +50,17 @@
         public string Name { get; set; } = string.Empty;
         public override string ToString() => Name;
     }
+
+    public class ReferenceItem
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string? Description { get; set; } // Будет null для справочников без описания
+
+        // Служебное поле, чтобы знать, из какой таблицы эта запись (нужно для сохранения)
+        public string TableName { get; set; } = string.Empty;
+
+        // Флаг для UI: есть ли у этой таблицы поле описания?
+        public bool HasDescription { get; set; }
+    }
 }

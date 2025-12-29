@@ -43,39 +43,46 @@ namespace CarRental.DAL.Repositories
                 using var reader = command.ExecuteReader();
                 while (reader.Read())
                 {
-                    var car = new Car
-                    {
-                        Id = (int)reader["ID"],
-                        Model = reader["Модель"].ToString() ?? string.Empty,
-                        PlateNumber = reader["ГосНомер"].ToString() ?? string.Empty,
-                        Year = (int)reader["ГодВыпуска"],
-                        Mileage = (int)reader["Пробег"],
-                        PricePerDay = (decimal)reader["СтоимостьВСутки"],
-                        ImagePath = reader["Фото"] as string, // Может быть null
-
-                        // Внешние ключи
-                        BrandId = (int)reader["IDМарки"],
-                        ClassId = (int)reader["IDКласса"],
-                        StatusId = (int)reader["IDСтатуса"],
-                        TransmissionId = (int)reader["IDТрансмиссии"],
-                        FuelId = (int)reader["IDТоплива"],
-                        BodyTypeId = (int)reader["IDКузова"],
-
-                        // Данные из справочников
-                        BrandName = reader["МаркаНазвание"].ToString() ?? string.Empty,
-                        ClassName = reader["КлассНазвание"].ToString() ?? string.Empty,
-                        StatusName = reader["СтатусНазвание"].ToString() ?? string.Empty,
-                        TransmissionName = reader["КППНазвание"].ToString() ?? string.Empty,
-                        FuelName = reader["ТопливоНазвание"].ToString() ?? string.Empty,
-                        BodyTypeName = reader["КузовНазвание"].ToString() ?? string.Empty,
-                        InsuranceExpiryDate = reader["ДатаСтраховки"] as DateTime?,
-                        NextMaintenanceDate = reader["ДатаТО"] as DateTime?,
-                        NextMaintenanceType = reader["ТипТО"] as string
-                    };
-                    cars.Add(car);
+                    cars.Add(MapCar(reader));
                 }
             }
+            return cars;
+        }
 
+        // Получение списанных автомобилей
+        public List<Car> GetWrittenOffCars()
+        {
+            var cars = new List<Car>();
+            // IDСтатуса = 6 (Списан) - или ищем по названию
+            string sql = @"
+                SELECT 
+                    a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.Фото,
+                    a.IDМарки, m.Название AS МаркаНазвание,
+                    a.IDКласса, c.Название AS КлассНазвание,
+                    a.IDСтатуса, s.Название AS СтатусНазвание,
+                    a.IDТрансмиссии, t.Название AS КППНазвание,
+                    a.IDТоплива, f.Название AS ТопливоНазвание,
+                    a.IDКузова, b.Название AS КузовНазвание,
+                    NULL AS ДатаСтраховки, NULL AS ДатаТО, NULL AS ТипТО -- Для архива это неважно
+                FROM Автомобиль a
+                    INNER JOIN Марка m ON a.IDМарки = m.ID
+                    INNER JOIN КлассАвтомобиля c ON a.IDКласса = c.ID
+                    INNER JOIN СтатусАвто s ON a.IDСтатуса = s.ID
+                    INNER JOIN ТипТрансмиссии t ON a.IDТрансмиссии = t.ID
+                    INNER JOIN ТипТоплива f ON a.IDТоплива = f.ID
+                    INNER JOIN ТипКузова b ON a.IDКузова = b.ID
+                WHERE s.Название = 'Списан'";
+
+            using (var connection = GetConnection())
+            {
+                connection.Open();
+                using var command = new SqlCommand(sql, connection);
+                using var reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    cars.Add(MapCar(reader)); // Используем ваш вспомогательный метод MapCar
+                }
+            }
             return cars;
         }
 

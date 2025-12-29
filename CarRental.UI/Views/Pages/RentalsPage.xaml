@@ -40,7 +40,7 @@
                     Click="Add_Click"/>
         </Grid>
 
-        <TabControl Grid.Row="2" Style="{StaticResource TabControlInLine}" SelectedIndex="0">
+        <TabControl x:Name="MainTabs" Grid.Row="2" Style="{StaticResource TabControlInLine}" SelectedIndex="0">
             <TabControl.Resources>
                 <Style x:Key="TabControlInLine" TargetType="TabControl">
                     <Setter Property="Template">
@@ -94,6 +94,8 @@
                     <DataGrid.ContextMenu>
                         <ContextMenu>
                             <MenuItem Header="Открыть аренду" Click="OpenDetails_Click"/>
+                            <MenuItem Header="Редактировать параметры" Click="EditRentalContext_Click"/>
+                            <Separator/>
                             <MenuItem Header="Карточка клиента" Click="OpenClientContext_Click"/>
                             <MenuItem Header="Карточка авто" Click="OpenCarContext_Click"/>
                         </ContextMenu>
@@ -181,6 +183,7 @@
 
                     <DataGrid.ContextMenu>
                         <ContextMenu>
+                            <MenuItem Header="Редактировать бронь" Click="OpenBookingDetails_Click"/>
                             <MenuItem Header="Карточка клиента" Click="OpenClientContext_Click"/>
                             <MenuItem Header="Карточка авто" Click="OpenCarContext_Click"/>
                         </ContextMenu>

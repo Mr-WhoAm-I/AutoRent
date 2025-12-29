@@ -20,5 +20,9 @@ namespace CarRental.BLL.Services
         public List<TransmissionType> GetTransmissions() => _repository.GetTransmissionTypes();
         public List<FuelType> GetFuelTypes() => _repository.GetFuelTypes();
         public List<CarStatus> GetStatuses() => _repository.GetStatuses();
+        public List<ReferenceItem> GetItems(string tableName) => _repository.GetItems(tableName);
+        public void SaveChanges(string tableName, List<ReferenceItem> items, List<int> deletedIds)
+            => _repository.SaveChanges(tableName, items, deletedIds);
+        public bool HasDescription(string tableName) => _repository.HasDescription(tableName);
     }
 }

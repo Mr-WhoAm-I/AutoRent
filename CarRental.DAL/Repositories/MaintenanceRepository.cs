@@ -13,6 +13,13 @@ namespace CarRental.DAL.Repositories
             return GetMaintenances("WHERE o.ДатаОкончания IS NULL");
         }
 
+        public List<Maintenance> GetArchivedMaintenance()
+        {
+            return GetMaintenances("WHERE M.ВАрхиве = 1 ORDER BY M.ДатаНачала DESC");
+            
+        }
+
+
         // 2. Получить историю (все ремонты)
         public List<Maintenance> GetAllHistory()
         {

@@ -11,6 +11,7 @@ namespace CarRental.BLL.Services
         private readonly BookingRepository _bookingRepo = new();
 
         public List<Car> GetCars() => _carRepo.GetAllCars();
+        public List<Car> GetWrittenOffCars() => _carRepo.GetWrittenOffCars();
 
 
         public List<int> GetOccupiedCarIds(DateTime start, DateTime end)

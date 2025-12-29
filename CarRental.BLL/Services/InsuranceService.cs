@@ -18,6 +18,11 @@ namespace CarRental.BLL.Services
             return _repo.GetByCarId(carId);
         }
 
+        public List<Insurance> GetArchivedInsurances()
+        {
+            return _repo.GetArchivedInsurances();
+        }
+
         public void Save(Insurance ins)
         {
             if (ins.Id == 0) _repo.Add(ins);

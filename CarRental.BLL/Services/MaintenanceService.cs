@@ -16,7 +16,10 @@ namespace CarRental.BLL.Services
         {
             return _repo.GetActiveMaintenances();
         }
-
+        public List<Maintenance> GetArchivedMaintenance()
+        {
+            return _repo.GetArchivedMaintenance();
+        }
         public List<Maintenance> GetHistory()
         {
             return _repo.GetAllHistory();

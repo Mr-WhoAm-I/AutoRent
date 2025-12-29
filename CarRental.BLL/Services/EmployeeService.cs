@@ -10,6 +10,7 @@ namespace CarRental.BLL.Services
         private readonly EmployeeRepository _repo = new();
 
         public List<Employee> GetAll() => _repo.GetAll();
+        public List<Employee> GetArchivedEmployees() => _repo.GetArchivedEmployees();
         public List<Employee> GetMechanics() => _repo.GetByRole("Механик");
 
         // Получить всех, кто может оформлять аренду (Админы + Менеджеры)

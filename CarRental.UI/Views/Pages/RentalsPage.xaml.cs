@@ -101,12 +101,18 @@ namespace CarRental.UI.Views.Pages
 
         private void Add_Click(object sender, RoutedEventArgs e)
         {
-            var win = new RentalAddWindow();
-            win.ShowDialog();
-
-            if (win.IsSuccess)
+            // Проверяем, какая вкладка открыта
+            if (MainTabs.SelectedIndex == 0) // Аренды
             {
-                LoadData();
+                var win = new RentalAddWindow();
+                win.ShowDialog();
+                if (win.IsSuccess) LoadData();
+            }
+            else // Бронирования (Index == 1)
+            {
+                var win = new BookingAddWindow();
+                win.ShowDialog();
+                if (win.IsSuccess) LoadData();
             }
         }
 
@@ -168,26 +174,47 @@ namespace CarRental.UI.Views.Pages
         {
             if (RentalsGrid.SelectedItem is RentalViewItem item)
             {
+                var win = new RentalDetailsWindow(item.Id);
+                win.ShowDialog();
+                LoadData();
+            }
+        }
+
+        private void EditRentalContext_Click(object sender, RoutedEventArgs e)
+        {
+            if (RentalsGrid.SelectedItem is RentalViewItem item)
+            {
                 try
                 {
-                    // Получаем полную сущность для редактирования
                     var rental = _rentalService.GetRentalById(item.Id);
                     if (rental != null)
                     {
                         var win = new RentalAddWindow(rental);
                         win.ShowDialog();
-
-                        if (win.IsSuccess) LoadData();
-                    }
-                    else
-                    {
-                        InfoDialog.Show("Не удалось найти данные аренды.", "Ошибка", true);
+                        if (win.IsSuccess) LoadData(); // Обновляем таблицу
                     }
                 }
                 catch (Exception ex)
                 {
                     InfoDialog.Show(ex.Message, "Ошибка", true);
                 }
+            }
+        }
+        private void OpenBookingDetails_Click(object sender, RoutedEventArgs e)
+        {
+            if (BookingsGrid.SelectedItem is BookingViewItem item)
+            {
+                try
+                {
+                    var booking = _bookingService.GetBookingById(item.Id);
+                    if (booking != null)
+                    {
+                        var win = new BookingAddWindow(booking);
+                        win.ShowDialog();
+                        if (win.IsSuccess) LoadData();
+                    }
+                }
+                catch (Exception ex) { InfoDialog.Show(ex.Message, "Ошибка", true); }
             }
         }
     }

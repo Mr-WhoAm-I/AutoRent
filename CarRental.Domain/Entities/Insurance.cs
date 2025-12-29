@@ -14,6 +14,7 @@ namespace CarRental.Domain.Entities
         public DateTime EndDate { get; set; }
         public bool IsArchived { get; set; }
         public decimal Cost { get; set; }
+        public string CarName { get; set; } = string.Empty;
 
         // Логика для отображения статуса в таблице
         public string Status

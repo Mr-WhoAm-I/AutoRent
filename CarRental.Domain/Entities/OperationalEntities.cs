@@ -37,15 +37,6 @@
         public string CarSubInfo => $"{Car.ClassName} • {Car.PlateNumber}";
     }
 
-    public class Payment
-    {
-        public int Id { get; set; }
-        public int RentalId { get; set; }
-        public DateTime Date { get; set; }
-        public decimal Amount { get; set; }
-        public string Type { get; set; } = string.Empty;
-    }
-
     public class CalendarItem
     {
         public DateTime Start { get; set; }

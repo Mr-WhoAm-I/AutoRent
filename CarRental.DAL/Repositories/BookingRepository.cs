@@ -140,5 +140,72 @@ namespace CarRental.DAL.Repositories
             }
             return list;
         }
+
+        public Booking? GetBookingById(int id)
+        {
+            string sql = "SELECT * FROM Бронирование WHERE ID = @Id";
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", id);
+
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
+            {
+                return new Booking
+                {
+                    Id = (int)reader["ID"],
+                    ClientId = (int)reader["IDКлиента"],
+                    CarId = (int)reader["IDАвтомобиля"],
+                    CreatedDate = (DateTime)reader["ДатаСоздания"],
+                    StartDate = (DateTime)reader["ДатаНачала"],
+                    EndDate = (DateTime)reader["ДатаОкончания"],
+                    Comment = reader["Комментарий"] as string
+                };
+            }
+            return null;
+        }
+
+        public void AddBooking(Booking booking)
+        {
+            string sql = @"
+                INSERT INTO Бронирование (IDКлиента, IDАвтомобиля, ДатаНачала, ДатаОкончания, Комментарий)
+                VALUES (@ClientId, @CarId, @Start, @End, @Comment)";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@ClientId", booking.ClientId);
+            cmd.Parameters.AddWithValue("@CarId", booking.CarId);
+            cmd.Parameters.AddWithValue("@Start", booking.StartDate);
+            cmd.Parameters.AddWithValue("@End", booking.EndDate);
+            cmd.Parameters.AddWithValue("@Comment", booking.Comment as object ?? DBNull.Value);
+
+            cmd.ExecuteNonQuery();
+        }
+
+        public void UpdateBooking(Booking booking)
+        {
+            string sql = @"
+                UPDATE Бронирование
+                SET IDКлиента = @ClientId,
+                    IDАвтомобиля = @CarId,
+                    ДатаНачала = @Start,
+                    ДатаОкончания = @End,
+                    Комментарий = @Comment
+                WHERE ID = @Id";
+
+            using var conn = GetConnection();
+            conn.Open();
+            using var cmd = new SqlCommand(sql, conn);
+            cmd.Parameters.AddWithValue("@Id", booking.Id);
+            cmd.Parameters.AddWithValue("@ClientId", booking.ClientId);
+            cmd.Parameters.AddWithValue("@CarId", booking.CarId);
+            cmd.Parameters.AddWithValue("@Start", booking.StartDate);
+            cmd.Parameters.AddWithValue("@End", booking.EndDate);
+            cmd.Parameters.AddWithValue("@Comment", booking.Comment as object ?? DBNull.Value);
+
+            cmd.ExecuteNonQuery();
+        }
     }
 }

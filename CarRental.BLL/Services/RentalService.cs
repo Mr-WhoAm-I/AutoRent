@@ -37,5 +37,10 @@ namespace CarRental.BLL.Services
         {
             _repo.FinishRental(rentalId, System.DateTime.Now);
         }
+
+        public void UpdateComment(int rentalId,string  comment)
+        {
+            _repo.UpdateComment(rentalId, comment);
+        }
     }
 }
