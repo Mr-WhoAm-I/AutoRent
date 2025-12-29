@@ -49,9 +49,10 @@ namespace CarRental.BLL.Services
             return schedule;
         }
 
-        public List<Car> GetAvailableCars(DateTime start, DateTime end)
+        // Обновили сигнатуру
+        public List<Car> GetAvailableCars(DateTime start, DateTime end, int? currentRentalId = null)
         {
-            return _carRepo.GetAvailableCars(start, end);
+            return _carRepo.GetAvailableCars(start, end, currentRentalId);
         }
     }
 

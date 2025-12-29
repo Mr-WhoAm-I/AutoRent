@@ -79,7 +79,7 @@ namespace CarRental.UI.Views.Pages
                         Title = status.Label,
                         Values = new ChartValues<double> { status.Value },
                         DataLabels = true,
-                        LabelPoint = point => $"{point.Y} ({point.X:P0})"
+                        LabelPoint = point => $"{point.Y} ({point.Participation:P0})"
                     });
                 }
             }

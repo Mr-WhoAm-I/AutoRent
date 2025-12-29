@@ -187,10 +187,13 @@ namespace CarRental.DAL.Repositories
 
         // Поиск свободных машин на заданный период
         // Исправленный метод поиска (SQL остался тем же, но проверим его)
-        public List<Car> GetAvailableCars(DateTime start, DateTime end)
+        // Добавили параметр currentRentalId (по умолчанию null)
+        public List<Car> GetAvailableCars(DateTime start, DateTime end, int? currentRentalId = null)
         {
             var list = new List<Car>();
 
+            // Добавляем условие в подзапрос Аренды: ID != @CurrentRentalId
+            // (или @CurrentRentalId IS NULL, если мы создаем новую)
             string sql = @"
                 SELECT 
                     a.ID, a.Модель, a.ГосНомер, a.ГодВыпуска, a.Пробег, a.СтоимостьВСутки, a.Фото,
@@ -212,10 +215,11 @@ namespace CarRental.DAL.Repositories
                     INNER JOIN ТипТрансмиссии t ON a.IDТрансмиссии = t.ID
                     INNER JOIN ТипТоплива f ON a.IDТоплива = f.ID
                     INNER JOIN ТипКузова b ON a.IDКузова = b.ID
-                WHERE a.IDСтатуса NOT IN (5, 6) -- Исключаем ремонт и списанные
+                WHERE a.IDСтатуса NOT IN (5, 6)
                   AND a.ID NOT IN (
                         SELECT DISTINCT IDАвтомобиля FROM Аренда 
                         WHERE (ДатаНачала <= @End) AND (ISNULL(ДатаОкончанияФактическая, ДатаОкончанияПлановая) >= @Start)
+                          AND (ID != @CurrentRentalId OR @CurrentRentalId IS NULL) -- <--- ИСКЛЮЧАЕМ ТЕКУЩУЮ АРЕНДУ
                   )
                   AND a.ID NOT IN (
                         SELECT DISTINCT IDАвтомобиля FROM Бронирование
@@ -231,6 +235,9 @@ namespace CarRental.DAL.Repositories
             using var cmd = new SqlCommand(sql, conn);
             cmd.Parameters.AddWithValue("@Start", start);
             cmd.Parameters.AddWithValue("@End", end);
+
+            // Передаем ID или DBNull
+            cmd.Parameters.AddWithValue("@CurrentRentalId", currentRentalId ?? (object)DBNull.Value);
 
             using var reader = cmd.ExecuteReader();
             while (reader.Read())

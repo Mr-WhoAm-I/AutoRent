@@ -32,13 +32,27 @@ namespace CarRental.UI.Views.Windows
             InitializeComponent();
             _currentRental = rental;
 
-            TxtTitle.Text = $"Аренда №{rental.Id}";
-            BtnSave.Content = "Сохранить";
-
-            // Показываем кнопку завершения, если еще не завершена
-            if (_currentRental.ActualEndDate == null)
+            // Если ID == 0, значит это создание новой аренды (передали заготовку из карточки)
+            if (_currentRental.Id == 0)
             {
-                PanelFinishRental.Visibility = Visibility.Visible;
+                TxtTitle.Text = "Новая аренда";
+                BtnSave.Content = "Оформить";
+                PanelFinishRental.Visibility = Visibility.Collapsed; // Скрываем кнопку завершения
+            }
+            else
+            {
+                TxtTitle.Text = $"Аренда №{rental.Id}";
+                BtnSave.Content = "Сохранить";
+
+                // Показываем кнопку завершения, ТОЛЬКО если это существующая аренда и она еще активна
+                if (_currentRental.ActualEndDate == null)
+                {
+                    PanelFinishRental.Visibility = Visibility.Visible;
+                }
+                else
+                {
+                    PanelFinishRental.Visibility = Visibility.Collapsed;
+                }
             }
 
             LoadInitialData();
@@ -137,8 +151,12 @@ namespace CarRental.UI.Views.Windows
         {
             try
             {
-                // Получаем список свободных машин на эти даты
-                var cars = _carService.GetAvailableCars(start, end);
+                // 1. Запоминаем текущий выбор (ID машины), чтобы он не слетел при обновлении списка
+                int? selectedCarId = (ComboCar.SelectedItem as Car)?.Id;
+
+                // 2. Получаем список, ИСКЛЮЧАЯ текущую аренду из проверки занятости
+                // Если _currentRental.Id == 0 (новая), то фильтр просто никого не исключит, что ок.
+                var cars = _carService.GetAvailableCars(start, end, _currentRental.Id);
 
                 ComboCar.ItemsSource = cars;
                 ComboCar.IsEnabled = true;
@@ -150,6 +168,17 @@ namespace CarRental.UI.Views.Windows
                 else
                 {
                     ComboCar.Tag = "Выберите автомобиль";
+                }
+
+                // 3. Восстанавливаем выбор, если эта машина все еще доступна (или это наша текущая)
+                if (selectedCarId.HasValue)
+                {
+                    // Пытаемся найти эту машину в новом списке
+                    var carToSelect = cars.FirstOrDefault(c => c.Id == selectedCarId.Value);
+                    if (carToSelect != null)
+                    {
+                        ComboCar.SelectedItem = carToSelect;
+                    }
                 }
             }
             catch (Exception ex)
@@ -200,19 +229,31 @@ namespace CarRental.UI.Views.Windows
 
             try
             {
-                // 2. Заполнение объекта
+                // 2. Заполнение объекта данными из полей
                 _currentRental.ClientId = client.Id;
                 _currentRental.CarId = car.Id;
                 _currentRental.EmployeeId = emp.Id;
+
+                // ВАЖНО: При редактировании мы перезаписываем старые значения новыми
                 _currentRental.StartDate = DateStart.SelectedDate.Value;
                 _currentRental.PlannedEndDate = DateEnd.SelectedDate.Value;
-                _currentRental.PriceAtRentalMoment = car.PricePerDay;
+                _currentRental.PriceAtRentalMoment = car.PricePerDay; // Можно оставить старую цену или обновить, по бизнес-логике
 
-                // 3. Сохранение через сервис
-                _rentalService.CreateRental(_currentRental);
+                // 3. ПРОВЕРКА: Создание или Обновление?
+                if (_currentRental.Id == 0)
+                {
+                    // Новая аренда
+                    _rentalService.CreateRental(_currentRental);
+                    InfoDialog.Show("Аренда успешно оформлена!", "Успех");
+                }
+                else
+                {
+                    // Редактирование существующей
+                    _rentalService.UpdateRental(_currentRental);
+                    InfoDialog.Show("Параметры аренды обновлены!", "Успех");
+                }
 
                 IsSuccess = true;
-                InfoDialog.Show("Аренда успешно оформлена!", "Успех");
                 Close();
             }
             catch (Exception ex)

@@ -359,7 +359,78 @@ namespace CarRental.UI.Views.Windows
 
         private void PrevMonth_Click(object sender, RoutedEventArgs e) { _currentMonth = _currentMonth.AddMonths(-1); DrawCalendar(); }
         private void NextMonth_Click(object sender, RoutedEventArgs e) { _currentMonth = _currentMonth.AddMonths(1); DrawCalendar(); }
-        private void BtnAction_Click(object sender, RoutedEventArgs e) { MessageBox.Show("Переход к оформлению..."); }
+        private void BtnAction_Click(object sender, RoutedEventArgs e)
+        {
+            if (_selectedStart == null) return;
+
+            DateTime start = _selectedStart.Value;
+            DateTime end = _selectedEnd ?? start; // Если выбран 1 день
+
+            try
+            {
+                // СЦЕНАРИЙ 1: Оформление АРЕНДЫ (если дата начала — сегодня)
+                if (start.Date == DateTime.Today)
+                {
+                    // Создаем заготовку аренды с выбранными параметрами
+                    var newRental = new Rental
+                    {
+                        CarId = _car.Id,
+                        StartDate = start,
+                        PlannedEndDate = end,
+                        PriceAtRentalMoment = _car.PricePerDay
+                    };
+
+                    // Передаем её в окно создания
+                    var win = new RentalAddWindow(newRental);
+                    win.ShowDialog();
+
+                    if (win.IsSuccess)
+                    {
+                        InfoDialog.Show("Аренда успешно оформлена!", "Успех");
+                        ResetSelection(); // Обновляем календарь
+                    }
+                }
+                // СЦЕНАРИЙ 2: Оформление БРОНИ (если дата начала — в будущем)
+                else if (start.Date > DateTime.Today)
+                {
+                    // Создаем заготовку брони
+                    var newBooking = new Booking
+                    {
+                        CarId = _car.Id,
+                        StartDate = start,
+                        EndDate = end
+                    };
+
+                    var win = new BookingAddWindow(newBooking);
+                    win.ShowDialog();
+
+                    if (win.IsSuccess)
+                    {
+                        InfoDialog.Show("Бронирование создано!", "Успех");
+                        ResetSelection(); // Обновляем календарь
+                    }
+                }
+                else
+                {
+                    InfoDialog.Show("Нельзя оформить аренду на прошедшую дату.", "Ошибка", true);
+                }
+            }
+            catch (Exception ex)
+            {
+                InfoDialog.Show("Ошибка при переходе: " + ex.Message, "Ошибка", true);
+            }
+        }
+
+        // Вспомогательный метод для сброса и обновления после действий
+        private void ResetSelection()
+        {
+            _selectedStart = null;
+            _selectedEnd = null;
+
+            LoadSchedule();     // 1. Загружаем новые данные из БД
+            DrawCalendar();     // 2. Перерисовываем квадратики
+            UpdateCalculation();// 3. Сбрасываем текст кнопки и цену
+        }
         private void Close_Click(object sender, RoutedEventArgs e) => Close();
         private void Window_MouseDown(object sender, MouseButtonEventArgs e) { if (e.LeftButton == MouseButtonState.Pressed) DragMove(); }
 

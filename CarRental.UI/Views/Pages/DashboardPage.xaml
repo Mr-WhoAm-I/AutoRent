@@ -111,8 +111,9 @@
                                       LegendLocation="Bottom" Hoverable="True" 
                                       InnerRadius="40" Margin="0,10,0,0">
                         </lvc:PieChart>
-                        
-                        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" IsHitTestVisible="False">
+
+                        <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                                    IsHitTestVisible="False" Margin="0,-25,0,0">
                             <TextBlock x:Name="TxtTotalCars" Text="0" FontSize="24" FontWeight="Bold" HorizontalAlignment="Center"/>
                             <TextBlock Text="Всего авто" FontSize="10" Foreground="Gray" HorizontalAlignment="Center"/>
                         </StackPanel>
